@@ -85,7 +85,7 @@ export default function WaitlistForm({ dark = false }: WaitlistFormProps) {
         <button
           type="submit"
           disabled={loading}
-          className={`px-7 py-3 rounded-pill text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+          className={`px-7 py-3 rounded-pill cursor-pointer text-sm font-medium transition-all duration-200 whitespace-nowrap ${
             dark
               ? 'bg-white text-foreground hover:bg-white/90'
               : 'bg-primary cursor-pointer text-primary-foreground hover:opacity-90'

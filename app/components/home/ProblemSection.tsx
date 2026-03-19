@@ -41,7 +41,7 @@ export default function ProblemSection() {
                 />
               </div>
               {/* Floating stat */}
-              <div className="absolute bottom-6 left-6 right-6 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-4">
+              <div className="absolute transition duration-400 hover:scale-110 bottom-6 left-6 right-6 bg-white/10 backdrop-blur-xl border border-white/20 rounded-xl p-4">
                 <p className="text-xs text-white/50 mb-1">Industry Standard</p>
                 <p className="text-2xl font-serif text-white">Not built for sensitivity</p>
               </div>

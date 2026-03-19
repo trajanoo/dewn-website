@@ -7,7 +7,6 @@ export default function HeroSection() {
     <section className="min-h-screen flex items-center pt-20 lg:pt-0 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-8 w-full">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          {/* Left content */}
           <div className="order-2 lg:order-1">
             <ScrollReveal delay={0.1}>
               <h1 className="font-serif font-bold text-4xl sm:text-5xl lg:text-6xl xl:text-7xl leading-tight text-foreground">
@@ -29,12 +28,11 @@ export default function HeroSection() {
             </ScrollReveal>
           </div>
 
-          {/* Right image */}
           <div className="order-1 lg:order-2 relative">
             <ScrollReveal delay={0.2} direction="right">
               <div className="relative">
-                {/* Floating badge */}
-                <div className="absolute top-4 right-4 z-10 bg-white/90 backdrop-blur-sm border border-border/50 rounded-full px-4 py-2 shadow-sm">
+
+                <div className="absolute transition duration-400 hover:scale-105 top-4 right-10 2xl:right-4 z-10 bg-white/90 backdrop-blur-sm border border-border/50 rounded-full px-4 py-2 shadow-sm">
                   <span className="text-xs font-medium tracking-wide text-foreground">Engineered for Sensitivity</span>
                 </div>
                 
