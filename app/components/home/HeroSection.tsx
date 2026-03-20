@@ -23,7 +23,7 @@ export default function HeroSection() {
             <ScrollReveal delay={0.4}>
               <div className="mt-8" id="waitlist">
                 <WaitlistForm />
-                <p className="mt-3 text-xs text-muted-foreground tracking-wide">Launching soon.</p>
+                <p className="md:block text-white mt-3 text-xs md:text-muted-foreground tracking-wide">Launching soon.</p>
               </div>
             </ScrollReveal>
           </div>
@@ -32,7 +32,7 @@ export default function HeroSection() {
             <ScrollReveal delay={0.2} direction="right">
               <div className="relative">
 
-                <div className="absolute transition duration-400 hover:scale-105 top-4 right-10 2xl:right-4 z-10 bg-white/90 backdrop-blur-sm border border-border/50 rounded-full px-4 py-2 shadow-sm">
+                <div className="hidden lg:block absolute transition duration-400 hover:scale-105 top-4 right-10 2xl:right-1 z-10 bg-white/90 backdrop-blur-sm border border-border/50 rounded-full px-4 py-2 shadow-sm">
                   <span className="text-xs font-medium tracking-wide text-foreground">Engineered for Sensitivity</span>
                 </div>
                 

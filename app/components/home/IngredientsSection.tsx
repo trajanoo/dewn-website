@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import IngredientsMobile from './IngredientsMobile';
 
 const TOTAL_FRAMES = 192;
 const SCROLL_HEIGHT = 680;
@@ -78,18 +79,30 @@ function clamp(value: number, min: number, max: number) {
 }
 
 function beatOpacity(progress: number, start: number, end: number, feather = 0.035) {
-  const fadeInStart = start;
   const fadeInEnd = Math.min(start + feather, end);
   const fadeOutStart = Math.max(end - feather, start);
-  const fadeOutEnd = end;
 
-  if (progress <= fadeInStart || progress >= fadeOutEnd) return 0;
+  if (progress <= start || progress >= end) return 0;
   if (progress >= fadeInEnd && progress <= fadeOutStart) return 1;
-  if (progress < fadeInEnd) return (progress - fadeInStart) / Math.max(fadeInEnd - fadeInStart, 0.0001);
-  return (fadeOutEnd - progress) / Math.max(fadeOutEnd - fadeOutStart, 0.0001);
+  if (progress < fadeInEnd) return (progress - start) / Math.max(fadeInEnd - start, 0.0001);
+  return (end - progress) / Math.max(end - fadeOutStart, 0.0001);
 }
 
-export default function IngredientsSection() {
+function useIsDesktop(): boolean | undefined {
+  const [isDesktop, setIsDesktop] = useState<boolean | undefined>(undefined);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    setIsDesktop(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  return isDesktop;
+}
+
+function IngredientsDesktop() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imagesRef = useRef<(HTMLImageElement | null)[]>([]);
@@ -110,7 +123,6 @@ export default function IngredientsSection() {
   }, [scrollProgress]);
 
   const sectionEntranceOpacity = useMemo(() => {
-    // Fast but smooth fade-in during the first slice of section scroll.
     const t = clamp(scrollProgress / 0.08, 0, 1);
     return t * t;
   }, [scrollProgress]);
@@ -119,41 +131,38 @@ export default function IngredientsSection() {
     const canvas = canvasRef.current;
     const image = imagesRef.current[index];
     if (!canvas || !image) return;
-  
+
     const context = canvas.getContext('2d');
     if (!context) return;
-  
+
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
-  
-    // Usa o DPR real do dispositivo, sem limitação artificial
+
     const dpr = window.devicePixelRatio || 1;
     const targetWidth = Math.floor(viewportWidth * dpr);
     const targetHeight = Math.floor(viewportHeight * dpr);
-  
+
     if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
       canvas.width = targetWidth;
       canvas.height = targetHeight;
-      canvas.style.width = `${viewportWidth}px`;   // força CSS = viewport real
+      canvas.style.width = `${viewportWidth}px`;
       canvas.style.height = `${viewportHeight}px`;
     }
-  
+
     context.setTransform(1, 0, 0, 1, 0, 0);
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.fillStyle = SECTION_BG;
     context.fillRect(0, 0, canvas.width, canvas.height);
-  
-    // Escala com DPR para desenhar em resolução nativa
     context.setTransform(dpr, 0, 0, dpr, 0, 0);
     context.imageSmoothingEnabled = true;
     context.imageSmoothingQuality = 'high';
-  
+
     const scale = Math.max(viewportWidth / image.width, viewportHeight / image.height);
     const drawWidth = image.width * scale;
     const drawHeight = image.height * scale;
     const x = (viewportWidth - drawWidth) / 2;
     const y = (viewportHeight - drawHeight) / 2;
-  
+
     context.drawImage(image, x, y, drawWidth, drawHeight);
     frameRef.current = index;
   };
@@ -164,23 +173,21 @@ export default function IngredientsSection() {
 
     const loadFrame = (frameNumber: number) =>
       new Promise<HTMLImageElement | null>((resolve) => {
-        const image = new Image();
-        image.decoding = 'async';
-        image.src = framePath(frameNumber);
-        image.onload = () => resolve(image);
-        image.onerror = () => resolve(null);
+        const img = new Image();
+        img.decoding = 'async';
+        img.src = framePath(frameNumber);
+        img.onload = () => resolve(img);
+        img.onerror = () => resolve(null);
       });
 
     const preload = async () => {
-      const promises = Array.from({ length: TOTAL_FRAMES }, (_, i) => {
-        return loadFrame(i + 1).then((image) => {
+      const promises = Array.from({ length: TOTAL_FRAMES }, (_, i) =>
+        loadFrame(i + 1).then((img) => {
           loadedCount += 1;
-          if (isMounted) {
-            setLoadProgress(loadedCount / TOTAL_FRAMES);
-          }
-          return image;
-        });
-      });
+          if (isMounted) setLoadProgress(loadedCount / TOTAL_FRAMES);
+          return img;
+        }),
+      );
 
       const images = await Promise.all(promises);
       if (!isMounted) return;
@@ -188,17 +195,12 @@ export default function IngredientsSection() {
       imagesRef.current = images;
       setIsLoaded(true);
 
-      const firstLoadedIndex = images.findIndex((image) => image !== null);
-      if (firstLoadedIndex >= 0) {
-        drawFrame(firstLoadedIndex);
-      }
+      const firstIndex = images.findIndex((img) => img !== null);
+      if (firstIndex >= 0) drawFrame(firstIndex);
     };
 
     preload();
-
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, []);
 
   useEffect(() => {
@@ -206,11 +208,8 @@ export default function IngredientsSection() {
       if (!isLoaded) return;
       drawFrame(frameRef.current);
     };
-
     window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-    };
+    return () => window.removeEventListener('resize', handleResize);
   }, [isLoaded]);
 
   useEffect(() => {
@@ -221,8 +220,7 @@ export default function IngredientsSection() {
       const sectionStart = section.offsetTop;
       const sectionEnd = sectionStart + section.offsetHeight - window.innerHeight;
       const maxScroll = Math.max(sectionEnd - sectionStart, 1);
-      const currentScroll = window.scrollY;
-      const progress = clamp((currentScroll - sectionStart) / maxScroll, 0, 1);
+      const progress = clamp((window.scrollY - sectionStart) / maxScroll, 0, 1);
 
       setScrollProgress(progress);
 
@@ -232,9 +230,7 @@ export default function IngredientsSection() {
       if (frameIndex === frameRef.current) return;
 
       if (drawRafRef.current !== null) cancelAnimationFrame(drawRafRef.current);
-      drawRafRef.current = requestAnimationFrame(() => {
-        drawFrame(frameIndex);
-      });
+      drawRafRef.current = requestAnimationFrame(() => drawFrame(frameIndex));
     };
 
     const onScroll = () => {
@@ -262,10 +258,11 @@ export default function IngredientsSection() {
       style={{ height: `${SCROLL_HEIGHT}vh` }}
     >
       <div className="sticky top-0 h-screen" style={{ opacity: sectionEntranceOpacity }}>
+
         <div className="pointer-events-none absolute inset-0 z-0 bg-[#FAFAFA]" aria-hidden="true">
           <canvas
             ref={canvasRef}
-            style={{ 
+            style={{
               backgroundColor: SECTION_BG,
               position: 'absolute',
               top: 0,
@@ -276,16 +273,20 @@ export default function IngredientsSection() {
           />
         </div>
 
-        {!isLoaded ? (
+        {!isLoaded && (
           <div className="pointer-events-none absolute inset-x-0 top-0 z-20">
             <div className="h-px w-full bg-[#E5E7EB]">
-              <div className="h-px bg-[#0E7490] transition-all duration-200" style={{ width: `${Math.round(loadProgress * 100)}%` }} />
+              <div
+                className="h-px bg-[#0E7490] transition-all duration-200"
+                style={{ width: `${Math.round(loadProgress * 100)}%` }}
+              />
             </div>
           </div>
-        ) : null}
+        )}
 
+        {/* Text overlay */}
         <div className="relative z-10 flex h-screen items-center">
-          <div className="mx-auto w-full max-w-7xl px-6 lg:px-10">
+          <div className="mx-auto 2xl:mx-0 2xl:ml-40 w-full max-w-7xl px-6 lg:px-10">
             <div className="relative min-h-[220px]">
               {beatStates.map((beat) => (
                 <motion.div
@@ -294,9 +295,15 @@ export default function IngredientsSection() {
                   transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                   className="pointer-events-none absolute inset-0 max-w-3xl"
                 >
-                  <p className="mb-6 text-xs font-medium uppercase tracking-[0.2em] text-[#2563EB]">What&apos;s Inside</p>
-                  <h2 className="text-4xl font-light tracking-[0.04em] text-[#0D0D0D] sm:text-5xl lg:text-6xl">{beat.heading}</h2>
-                  <p className="mt-6 max-w-2xl text-base font-normal leading-relaxed text-[#6B6B6B] sm:text-lg">{beat.descriptor}</p>
+                  <p className="mb-6 text-xs font-medium uppercase tracking-[0.2em] text-[#2563EB]">
+                    What&apos;s Inside
+                  </p>
+                  <h2 className="text-4xl font-light tracking-[0.04em] text-[#0D0D0D] sm:text-5xl lg:text-5xl">
+                    {beat.heading}
+                  </h2>
+                  <p className="mt-6 max-w-2xl text-base font-normal leading-relaxed text-[#6B6B6B] sm:text-md">
+                    {beat.descriptor}
+                  </p>
                 </motion.div>
               ))}
             </div>
@@ -305,4 +312,13 @@ export default function IngredientsSection() {
       </div>
     </section>
   );
+}
+
+export default function IngredientsSection() {
+  const isDesktop = useIsDesktop();
+
+  if (isDesktop === undefined) return null;
+
+  if (!isDesktop) return <IngredientsMobile />;
+  return <IngredientsDesktop />;
 }
