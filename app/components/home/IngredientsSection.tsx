@@ -3,10 +3,10 @@
 import { motion } from 'framer-motion';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-const TOTAL_FRAMES = 147;
+const TOTAL_FRAMES = 192;
 const SCROLL_HEIGHT = 680;
-const FRAME_BASE_PATH = '/dewn-3d/ezgif-frame-';
-const FRAME_EXTENSION = '.jpg';
+const FRAME_BASE_PATH = '/dewn-3d/frame_';
+const FRAME_EXTENSION = '.png';
 const SECTION_BG = '#FAFAFA';
 
 type Beat = {
@@ -119,33 +119,41 @@ export default function IngredientsSection() {
     const canvas = canvasRef.current;
     const image = imagesRef.current[index];
     if (!canvas || !image) return;
-
+  
     const context = canvas.getContext('2d');
     if (!context) return;
-
+  
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
+  
+    // Usa o DPR real do dispositivo, sem limitação artificial
     const dpr = window.devicePixelRatio || 1;
     const targetWidth = Math.floor(viewportWidth * dpr);
     const targetHeight = Math.floor(viewportHeight * dpr);
-
+  
     if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
       canvas.width = targetWidth;
       canvas.height = targetHeight;
+      canvas.style.width = `${viewportWidth}px`;   // força CSS = viewport real
+      canvas.style.height = `${viewportHeight}px`;
     }
-
+  
     context.setTransform(1, 0, 0, 1, 0, 0);
     context.clearRect(0, 0, canvas.width, canvas.height);
     context.fillStyle = SECTION_BG;
     context.fillRect(0, 0, canvas.width, canvas.height);
+  
+    // Escala com DPR para desenhar em resolução nativa
     context.setTransform(dpr, 0, 0, dpr, 0, 0);
-
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = 'high';
+  
     const scale = Math.max(viewportWidth / image.width, viewportHeight / image.height);
     const drawWidth = image.width * scale;
     const drawHeight = image.height * scale;
     const x = (viewportWidth - drawWidth) / 2;
     const y = (viewportHeight - drawHeight) / 2;
-
+  
     context.drawImage(image, x, y, drawWidth, drawHeight);
     frameRef.current = index;
   };
@@ -257,8 +265,14 @@ export default function IngredientsSection() {
         <div className="pointer-events-none absolute inset-0 z-0 bg-[#FAFAFA]" aria-hidden="true">
           <canvas
             ref={canvasRef}
-            className="h-full w-full"
-            style={{ backgroundColor: SECTION_BG }}
+            style={{ 
+              backgroundColor: SECTION_BG,
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100vw',
+              height: '100vh',
+            }}
           />
         </div>
 
