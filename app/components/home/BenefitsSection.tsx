@@ -1,3 +1,4 @@
+'use client'
 import ScrollReveal from './ScrollReveal';
 import { Sun, Moon, CheckCircle2 } from 'lucide-react';
 
@@ -30,21 +31,23 @@ const columns = [
 
 export default function BenefitsSection() {
   return (
-    <section className="py-24 lg:py-36 bg-gradient-to-b from-background to-secondary/30">
+    <section className="py-32 lg:py-44 bg-gradient-to-b from-[hsl(var(--surface-2))] via-[hsl(var(--surface-1))] to-background relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
+        <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-accent/3 rounded-full blur-[100px]" />
+        
         <ScrollReveal>
-          <div className="mb-16">
-            <h2 className="font-serif font-bold text-3xl sm:text-4xl lg:text-5xl text-foreground">Benefits</h2>
+          <div className="mb-20 relative z-10">
+            <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-foreground tracking-tight font-bold">Benefits</h2>
           </div>
         </ScrollReveal>
 
-        <div className="grid md:grid-cols-2 gap-12 lg:gap-16">
+        <div className="grid md:grid-cols-2 gap-12 lg:gap-16 relative z-10">
           {columns.map((col, i) => (
             <ScrollReveal key={col.title} delay={i * 0.15}>
-              <div className="bg-card/50 backdrop-blur-sm border border-border/60 rounded-2xl p-8 lg:p-10">
+              <div className="bg-card/60 backdrop-blur-sm border border-border/50 rounded-3xl p-10 lg:p-12 hover:bg-card hover:border-border transition-all duration-500 hover:shadow-xl hover:shadow-primary/5">
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
-                    <col.Icon className="w-4 h-4 text-accent" />
+                  <div className="w-8 h-8 bg-[#EDEFEE] rounded-full  flex items-center justify-center">
+                    <col.Icon className="w-4 h-4 text-[#6A9BA0]" />
                   </div>
                   <span className="text-xs tracking-[0.15em] uppercase text-muted-foreground">{col.subtitle}</span>
                 </div>
