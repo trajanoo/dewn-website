@@ -7,9 +7,12 @@ const ZOHO_FORM_ID = '3z74e84c8d5aaea1b92535bb9ec5fb386b8afeca7e0c821a192226c91f
 
 interface WaitlistFormProps {
   dark?: boolean
+  instanceId?: string
 }
 
-export default function WaitlistForm({ dark = false }: WaitlistFormProps) {
+export default function WaitlistForm({ dark = false, instanceId = 'default' }: WaitlistFormProps) {
+  const iFrameName = `_zcSignup${instanceId}`
+
   const [email, setEmail]           = useState('')
   const [submitted, setSubmitted]   = useState(false)
   const [loading, setLoading]       = useState(false)
@@ -51,25 +54,15 @@ export default function WaitlistForm({ dark = false }: WaitlistFormProps) {
         event_label: 'Zoho Waitlist Form',
       })
     }
-
-    // Fallback — garante o estado mesmo se o iframe não disparar o load
-    setTimeout(() => {
-      setSubmitted(true)
-      setLoading(false)
-    }, 3000)
-
-    // Deixa o form submeter normalmente para o iframe
-    // NÃO chama e.preventDefault()
   }
 
-  if (submitted) return null // Toast já dá o feedback, não precisa de UI inline
+  if (submitted) return null
 
   return (
     <>
-      {/* Iframe invisível — recebe a resposta do Zoho sem redirecionar a página */}
       <iframe
         ref={iframeRef}
-        name="_zcSignup"
+        name={iFrameName}
         className="hidden"
         title="zoho-form-target"
       />
@@ -78,11 +71,11 @@ export default function WaitlistForm({ dark = false }: WaitlistFormProps) {
         id="zcampaignOptinForm"
         action="https://zgp4-zgp4.maillist-manage.in/weboptin.zc"
         method="POST"
-        target="_zcSignup"
+        target={iFrameName}
         onSubmit={handleSubmit}
         className="flex flex-col sm:flex-row gap-3 w-full max-w-md"
       >
-        {/* ── Hidden fields — valores exatos da conta Zoho do cliente ── */}
+
         <input type="hidden" name="submitType"      value="optinCustomView" />
         <input type="hidden" name="emailReportId"   value="" />
         <input type="hidden" name="formType"        value="QuickForm" />
@@ -96,7 +89,6 @@ export default function WaitlistForm({ dark = false }: WaitlistFormProps) {
         <input type="hidden" name="zc_trackCode"    value="ZCFORMVIEW" />
         <input type="hidden" name="zc_formIx"       value={ZOHO_FORM_ID} />
 
-        {/* ── Email input ── */}
         <input
           type="email"
           name="CONTACT_EMAIL"
@@ -112,7 +104,6 @@ export default function WaitlistForm({ dark = false }: WaitlistFormProps) {
           }`}
         />
 
-        {/* ── Submit button ── */}
         <button
           type="submit"
           disabled={loading}

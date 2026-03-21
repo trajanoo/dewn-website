@@ -22,7 +22,7 @@ export default function HeroSection() {
 
             <ScrollReveal delay={0.4}>
               <div className="mt-8" id="waitlist">
-                <WaitlistForm />
+                <WaitlistForm instanceId='hero' />
                 <p className="md:block text-white mt-3 text-xs md:text-muted-foreground tracking-wide">Launching soon.</p>
               </div>
             </ScrollReveal>

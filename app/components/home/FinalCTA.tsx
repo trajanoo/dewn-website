@@ -17,7 +17,7 @@ export default function FinalCTA() {
         </ScrollReveal>
         <ScrollReveal delay={0.2}>
           <div className="mt-10 flex justify-center">
-            <WaitlistForm dark />
+            <WaitlistForm dark instanceId='cta' />
           </div>
         </ScrollReveal>
       </div>
