@@ -30,7 +30,7 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between h-16 lg:h-20">
         <Link href="/" className="font-serif text-xl  text-foreground">
-          DEWN
+          <img width={80} src="../dewn-logo.png" alt="" />
         </Link>
 
         {/* Desktop */}

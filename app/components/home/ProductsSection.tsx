@@ -80,7 +80,7 @@ export default function ProductsSection() {
                   {/* Atmosphere indicator */}
                   <div className="absolute -bottom-4 left-6 bg-card/95 backdrop-blur-sm border border-border/60 rounded-full px-5 py-2 shadow-lg">
                     <div className="flex items-center gap-2">
-                      <product.Icon className="w-4 h-4 text-accent" />
+                      <product.Icon className="w-4 h-4 text-[#6A9BA0]" />
                       <span className="text-xs text-muted-foreground tracking-wide">{product.atmosphere}</span>
                     </div>
                   </div>
