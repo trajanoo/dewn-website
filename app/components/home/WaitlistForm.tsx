@@ -1,99 +1,130 @@
-'use client'     
+'use client'
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react'
+import { toast } from 'sonner'
+
+const ZOHO_FORM_ID = '3z74e84c8d5aaea1b92535bb9ec5fb386b8afeca7e0c821a192226c91f7d5682fd'
 
 interface WaitlistFormProps {
-  dark?: boolean;
+  dark?: boolean
 }
 
 export default function WaitlistForm({ dark = false }: WaitlistFormProps) {
-  const [email, setEmail] = useState<string>('');
-  const [submitted, setSubmitted] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
-  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const [email, setEmail]           = useState('')
+  const [submitted, setSubmitted]   = useState(false)
+  const [loading, setLoading]       = useState(false)
+  const iframeRef                   = useRef<HTMLIFrameElement>(null)
 
+  // Detecta quando o Zoho responde no iframe
   useEffect(() => {
-    // Listen for iframe load to detect submission
-    const iframe = iframeRef.current;
-    if (!iframe) return;
-    
+    const iframe = iframeRef.current
+    if (!iframe) return
+
     const handleLoad = () => {
       if (loading) {
-        setSubmitted(true);
-        setLoading(false);
+        setSubmitted(true)
+        setLoading(false)
       }
-    };
-    iframe.addEventListener('load', handleLoad);
-    return () => iframe.removeEventListener('load', handleLoad);
-  }, [loading]);
+    }
+
+    iframe.addEventListener('load', handleLoad)
+    return () => iframe.removeEventListener('load', handleLoad)
+  }, [loading])
+
+  // Toast de confirmação
+  useEffect(() => {
+    if (submitted) {
+      toast.success("You're in. We'll be in touch when DEWN launches.", {
+        position: 'top-center',
+      })
+    }
+  }, [submitted])
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!email) return;
-    setLoading(true);
-    
-    // Track GA4 event
-    if (typeof (window as any).gtag === 'function') {
-      (window as any).gtag('event', 'waitlist_signup', { method: 'email' });
-    }
-    
-    // Submit via hidden form to iframe
-    const form = e.target as HTMLFormElement;
-    form.submit();
-  };
+    if (!email) return
+    setLoading(true)
 
-  if (submitted) {
-    return (
-      <div className={`text-center py-4 ${dark ? 'text-white/80' : 'text-foreground/70'}`}>
-        <p className="font-serif text-lg">Thank you.</p>
-        <p className="text-sm mt-1 opacity-70">We'll be in touch when DEWN launches.</p>
-      </div>
-    );
+    // GA4
+    if (typeof (window as any).gtag === 'function') {
+      ;(window as any).gtag('event', 'waitlist_submit', {
+        event_category: 'engagement',
+        event_label: 'Zoho Waitlist Form',
+      })
+    }
+
+    // Fallback — garante o estado mesmo se o iframe não disparar o load
+    setTimeout(() => {
+      setSubmitted(true)
+      setLoading(false)
+    }, 3000)
+
+    // Deixa o form submeter normalmente para o iframe
+    // NÃO chama e.preventDefault()
   }
+
+  if (submitted) return null // Toast já dá o feedback, não precisa de UI inline
 
   return (
     <>
-      <iframe ref={iframeRef} name="zoho_iframe" className="hidden" title="form-target" />
+      {/* Iframe invisível — recebe a resposta do Zoho sem redirecionar a página */}
+      <iframe
+        ref={iframeRef}
+        name="_zcSignup"
+        className="hidden"
+        title="zoho-form-target"
+      />
+
       <form
+        id="zcampaignOptinForm"
         action="https://zgp4-zgp4.maillist-manage.in/weboptin.zc"
         method="POST"
-        target="zoho_iframe"
+        target="_zcSignup"
         onSubmit={handleSubmit}
         className="flex flex-col sm:flex-row gap-3 w-full max-w-md"
       >
-        <input type="hidden" name="zx" value="14af69f0e" />
-        <input type="hidden" name="zcvers" value="3.0" />
-        <input type="hidden" name="oldListIds" value="" />
-        <input type="hidden" name="mode" value="OptinCreate498" />
-        <input type="hidden" name="zcld" value="14af53a3113b55" />
-        <input type="hidden" name="zctd" value="14af53a3113b3e" />
-        <input type="hidden" name="scriptless" value="yes" />
-        
+        {/* ── Hidden fields — valores exatos da conta Zoho do cliente ── */}
+        <input type="hidden" name="submitType"      value="optinCustomView" />
+        <input type="hidden" name="emailReportId"   value="" />
+        <input type="hidden" name="formType"        value="QuickForm" />
+        <input type="hidden" name="zx"              value="1dfc313f00" />
+        <input type="hidden" name="zcvers"          value="2.0" />
+        <input type="hidden" name="oldListIds"      value="" />
+        <input type="hidden" name="mode"            value="OptinCreateView" />
+        <input type="hidden" name="zcld"            value="14b5052434da3fe7" />
+        <input type="hidden" name="zctd"            value="14b5052434da3e31" />
+        <input type="hidden" name="document_domain" value="" />
+        <input type="hidden" name="zc_trackCode"    value="ZCFORMVIEW" />
+        <input type="hidden" name="zc_formIx"       value={ZOHO_FORM_ID} />
+
+        {/* ── Email input ── */}
         <input
           type="email"
           name="CONTACT_EMAIL"
+          id="EMBED_FORM_EMAIL_LABEL"
           value={email}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           placeholder="Your email"
           required
-          className={`flex-1 px-5 py-3 rounded-pill text-sm outline-none transition-all duration-200 ${
+          className={`flex-1 px-5 py-3 rounded-full text-sm outline-none transition-all duration-200 ${
             dark
               ? 'bg-white/10 border border-white/20 text-white placeholder:text-white/40 focus:border-white/40'
               : 'bg-white border border-border text-foreground placeholder:text-muted-foreground focus:border-foreground/30'
           }`}
         />
+
+        {/* ── Submit button ── */}
         <button
           type="submit"
           disabled={loading}
-          className={`px-7 py-3 rounded-pill cursor-pointer text-sm font-medium transition-all duration-200 whitespace-nowrap ${
+          className={`px-7 py-3 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap ${
             dark
               ? 'bg-white text-foreground hover:bg-white/90'
-              : 'bg-primary cursor-pointer text-primary-foreground hover:opacity-90'
-          } ${loading ? 'opacity-60 cursor-not-allowed' : ''}`}
+              : 'bg-primary text-primary-foreground hover:opacity-90'
+          } ${loading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
         >
           {loading ? 'Joining...' : 'Join the Waitlist'}
         </button>
       </form>
     </>
-  );
+  )
 }
