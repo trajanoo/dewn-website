@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import IngredientsMobile from './IngredientsMobile';
+import { client } from '@/sanity/lib/client'
 
 const TOTAL_FRAMES = 192;
 const SCROLL_HEIGHT = 680;
@@ -16,59 +17,99 @@ type Beat = {
   end: number;
   heading: string;
   descriptor: string;
+  size: 'large' | 'medium' | 'small';
+  label?: string;
+  align: 'left' | 'right';
 };
 
 const STORY_BEATS: Beat[] = [
   {
     id: 'intro',
     start: 0,
-    end: 0.15,
+    end: 0.18,
     heading: "What's Inside",
     descriptor: 'Essential nutrients engineered to remain light, stable, and easy to drink.',
+    size: 'large',
+    align: 'left',
   },
   {
     id: 'phgg',
-    start: 0.15,
-    end: 0.3,
+    start: 0.18,
+    end: 0.30,
     heading: 'PHGG',
-    descriptor: 'Low-viscosity soluble fiber / Prevents the thickening common in fiber drinks',
+    descriptor: 'Low-viscosity soluble fiber. Prevents the thickening common in fiber drinks.',
+    size: 'medium',
+    label: '01',
+    align: 'left',
   },
   {
     id: 'whey',
-    start: 0.3,
+    start: 0.30,
     end: 0.45,
     heading: 'Acid-Stable Clear Whey',
-    descriptor: 'Protein isolate / Remains dispersed under acidic digestive conditions',
+    descriptor: 'Protein isolate. Remains dispersed under acidic digestive conditions.',
+    size: 'medium',
+    label: '02',
+    align: 'right',
   },
   {
     id: 'magnesium',
     start: 0.45,
-    end: 0.6,
+    end: 0.53,
     heading: 'Magnesium Complex',
-    descriptor: 'L-Threonate · Glycinate · Taurate / Chelated mineral forms that prevent chalky residue',
+    descriptor: 'L-Threonate · Glycinate · Taurate — chelated mineral forms that prevent chalky residue.',
+    size: 'medium',
+    label: '03',
+    align: 'left',
   },
   {
     id: 'electrolyte',
-    start: 0.6,
-    end: 0.75,
+    start: 0.53,
+    end: 0.67,
     heading: 'Electrolyte System',
-    descriptor: 'Potassium Citrate · Sodium Chloride / Mineral forms designed for a smoother taste',
+    descriptor: 'Potassium Citrate · Sodium Chloride. Mineral forms designed for a smoother taste.',
+    size: 'small',
+    label: '04',
+    align: 'right',
   },
   {
     id: 'sensory',
-    start: 0.75,
-    end: 0.9,
+    start: 0.67,
+    end: 0.77,
     heading: 'Sensory Balance',
-    descriptor: 'Ginger · Glycine · Reb-M · Natural Lemon Flavor / Calibrated for a clean, neutral finish',
+    descriptor: 'Ginger · Glycine · Reb-M · Natural Lemon Flavor. Calibrated for a clean, neutral finish.',
+    size: 'small',
+    label: '05',
+    align: 'left',
   },
   {
     id: 'outro',
-    start: 0.9,
-    end: 1,
-    heading: 'Zero grit. Zero haze. Zero heaviness.',
+    start: 0.7,
+    end: 1.0,
+    heading: 'Zero grit. Zero haze.\nZero heaviness.',
     descriptor: 'Held in solution from first sip to finish.',
+    size: 'large',
+    align: 'right',
   },
 ];
+
+const sizeStyles: Record<Beat['size'], { heading: string; descriptor: string; maxWidth: string }> = {
+  large: {
+    heading: 'text-4xl sm:text-5xl lg:text-[3.25rem] font-light leading-[1.15] tracking-[0.03em]',
+    descriptor: 'mt-6 text-base sm:text-lg leading-relaxed',
+    maxWidth: 'max-w-[22rem]',
+  },
+  medium: {
+    heading: 'text-3xl sm:text-4xl lg:text-[2.5rem] font-light leading-[1.2] tracking-[0.03em]',
+    descriptor: 'mt-5 text-sm sm:text-base leading-relaxed',
+    maxWidth: 'max-w-[20rem]',
+  },
+  small: {
+    heading: 'text-2xl sm:text-3xl lg:text-[2rem] font-light leading-[1.25] tracking-[0.03em]',
+    descriptor: 'mt-4 text-sm leading-relaxed',
+    maxWidth: 'max-w-[18rem]',
+  },
+};
 
 function framePath(frameNumber: number) {
   return `${FRAME_BASE_PATH}${String(frameNumber).padStart(3, '0')}${FRAME_EXTENSION}`;
@@ -78,7 +119,7 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
-function beatOpacity(progress: number, start: number, end: number, feather = 0.035) {
+function beatOpacity(progress: number, start: number, end: number, feather = 0.03) {
   const fadeInEnd = Math.min(start + feather, end);
   const fadeOutStart = Math.max(end - feather, start);
 
@@ -113,14 +154,50 @@ function IngredientsDesktop() {
   const [loadProgress, setLoadProgress] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [beats, setBeats] = useState<Beat[]>(STORY_BEATS);
+
+  useEffect(() => {
+    let mounted = true
+    const fetchIngredients = async () => {
+      try {
+        const res = await client.fetch(`*[_type == "ingredients"][0]{title, items[]{name,subtitle,desc}}`)
+        if (!mounted) return
+        const items = res?.items ?? []
+        if (items.length === 0) return
+
+        const total = items.length
+        const generated: Beat[] = items.map((it: any, idx: number) => {
+          const start = idx / total
+          const end = (idx + 1) / total
+          const size: Beat['size'] = idx === 0 || idx === total - 1 ? 'large' : 'medium'
+          const align: Beat['align'] = idx % 2 === 0 ? 'left' : 'right'
+          return {
+            id: (it.name || `beat-${idx}`).toString().toLowerCase().replace(/\s+/g, '-'),
+            start,
+            end,
+            heading: it.name || '',
+            descriptor: it.desc || '',
+            size,
+            label: it.subtitle,
+            align,
+          }
+        })
+        setBeats(generated)
+      } catch (e) {
+        // keep fallback
+      }
+    }
+    fetchIngredients()
+    return () => { mounted = false }
+  }, [])
 
   const beatStates = useMemo(() => {
-    return STORY_BEATS.map((beat) => {
+    return beats.map((beat) => {
       const opacity = beatOpacity(scrollProgress, beat.start, beat.end);
-      const y = 14 * (1 - opacity);
-      return { ...beat, opacity, y };
+      const xOffset = (1 - opacity) * (beat.align === 'left' ? -24 : 24);
+      return { ...beat, opacity, xOffset };
     });
-  }, [scrollProgress]);
+  }, [scrollProgress, beats]);
 
   const sectionEntranceOpacity = useMemo(() => {
     const t = clamp(scrollProgress / 0.08, 0, 1);
@@ -257,7 +334,7 @@ function IngredientsDesktop() {
       className="relative isolate bg-[#FAFAFA]"
       style={{ height: `${SCROLL_HEIGHT}vh` }}
     >
-      <div className="sticky top-0 h-screen" style={{ opacity: sectionEntranceOpacity }}>
+      <div className="sticky top-0 h-screen overflow-hidden" style={{ opacity: sectionEntranceOpacity }}>
 
         <div className="pointer-events-none absolute inset-0 z-0 bg-[#FAFAFA]" aria-hidden="true">
           <canvas
@@ -284,30 +361,40 @@ function IngredientsDesktop() {
           </div>
         )}
 
-        {/* Text overlay */}
-        <div className="relative z-10 flex h-screen items-center">
-          <div className="mx-auto 2xl:mx-0 2xl:ml-40 w-full max-w-7xl px-6 lg:px-10">
-            <div className="relative min-h-[220px]">
-              {beatStates.map((beat) => (
-                <motion.div
-                  key={beat.id}
-                  animate={{ opacity: beat.opacity, y: beat.y }}
-                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                  className="pointer-events-none absolute inset-0 max-w-3xl"
-                >
-                  <p className="mb-6 text-xs font-medium uppercase tracking-[0.2em] text-[#2563EB]">
-                    What&apos;s Inside
-                  </p>
-                  <h2 className="text-4xl font-light tracking-[0.04em] text-[#0D0D0D] sm:text-5xl lg:text-5xl">
-                    {beat.heading}
-                  </h2>
-                  <p className="mt-6 max-w-2xl text-base font-normal leading-relaxed text-[#6B6B6B] sm:text-md">
-                    {beat.descriptor}
-                  </p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
+        {/* Text overlay — full viewport, beats positioned near edges */}
+        <div className="relative z-10 h-screen">
+          {beatStates.map((beat) => (
+            <motion.div
+              key={beat.id}
+              animate={{ opacity: beat.opacity, x: beat.xOffset }}
+              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              className={`pointer-events-none absolute top-1/2 -translate-y-1/2 ${sizeStyles[beat.size].maxWidth} ${
+                beat.align === 'left'
+                  ? 'left-[6vw] items-start text-left'
+                  : 'right-[6vw] items-end text-right'
+              } flex flex-col`}
+            >
+              {/* Label row */}
+              <div className={`mb-5 flex items-center gap-4 ${beat.align === 'right' ? 'flex-row-reverse' : ''}`}>
+                <p className="text-xs font-medium uppercase tracking-[0.22em] text-[#2563EB]">
+                  What&apos;s Inside
+                </p>
+                {beat.label && (
+                  <span className="text-xs font-mono text-[#0D0D0D]/25 tracking-widest">
+                    {beat.label} / 05
+                  </span>
+                )}
+              </div>
+
+              <h2 className={`text-[#0D0D0D] whitespace-pre-line ${sizeStyles[beat.size].heading}`}>
+                {beat.heading}
+              </h2>
+
+              <p className={`font-normal text-[#6B6B6B] ${sizeStyles[beat.size].descriptor}`}>
+                {beat.descriptor}
+              </p>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

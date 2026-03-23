@@ -18,7 +18,6 @@ export default function WaitlistForm({ dark = false, instanceId = 'default' }: W
   const [loading, setLoading]       = useState(false)
   const iframeRef                   = useRef<HTMLIFrameElement>(null)
 
-  // Detecta quando o Zoho responde no iframe
   useEffect(() => {
     const iframe = iframeRef.current
     if (!iframe) return
@@ -34,7 +33,6 @@ export default function WaitlistForm({ dark = false, instanceId = 'default' }: W
     return () => iframe.removeEventListener('load', handleLoad)
   }, [loading])
 
-  // Toast de confirmação
   useEffect(() => {
     if (submitted) {
       toast.success("You're in. We'll be in touch when DEWN launches.", {
@@ -47,7 +45,6 @@ export default function WaitlistForm({ dark = false, instanceId = 'default' }: W
     if (!email) return
     setLoading(true)
 
-    // GA4
     if (typeof (window as any).gtag === 'function') {
       ;(window as any).gtag('event', 'waitlist_submit', {
         event_category: 'engagement',
@@ -110,7 +107,7 @@ export default function WaitlistForm({ dark = false, instanceId = 'default' }: W
           className={`px-7 py-3 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap ${
             dark
               ? 'bg-white text-foreground hover:bg-white/90'
-              : 'bg-primary text-primary-foreground hover:opacity-90'
+              : 'bg-[#1E2429] text-primary-foreground hover:opacity-90'
           } ${loading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
         >
           {loading ? 'Joining...' : 'Join the Waitlist'}

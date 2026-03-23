@@ -3,6 +3,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: 'ARPDisplay';
+  src: url('/fonts/ARPDisplay-150.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 @theme {
   --background: 0 0% 98%;
   --foreground: 0 0% 7%;
@@ -47,7 +54,7 @@
   --chart-4: 43 74% 66%;
   --chart-5: 27 87% 67%;
 
-  --font-serif: "DM Serif Display", serif;
+  --font-serif: "ARPDisplay", serif;
   --font-sans: "DM Sans", sans-serif;
 
   --radius: 0.5rem;
@@ -138,9 +145,9 @@
   }
 
   body {
-    background-color: var(--color-background);
+    background-color: var(--font-sans);
     color: var(--color-foreground);
-    font-family: var(--font-sans);
+    font-family: var(--font-sans), sans-serif;
     @apply bg-background text-foreground;
   }
 

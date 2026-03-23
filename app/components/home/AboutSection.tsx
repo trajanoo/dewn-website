@@ -1,35 +1,35 @@
 import ScrollReveal from './ScrollReveal';
+import { client } from '@/sanity/lib/client'
 
-export default function AboutSection() {
+export default async function AboutSection() {
+  const query = `*[_type == "about"][0]{title, body}`
+  const data = await client.fetch(query)
+  const title = data?.title
+  const body = data?.body
+
   return (
-    <section className="py-24 lg:py-36 bg-secondary/50" id="about">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <section className="py-24 lg:py-36 bg-secondary/50 relative overflow-hidden" id="about">
+      <div className="absolute top-0 left-0 right-0 h-[5%] bg-gradient-to-b from-white to-transparent pointer-events-none z-10" />
+      <div className="absolute bottom-0 left-0 right-0 h-[5%] bg-gradient-to-t from-white to-transparent pointer-events-none z-10" />
+
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-20">
         <div className="max-w-2xl">
           <ScrollReveal>
             <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3">About</p>
             <h2 className="font-serif font-bold text-3xl sm:text-4xl lg:text-5xl text-foreground leading-tight mb-8">
-              Quiet by Design
+              {title}
             </h2>
           </ScrollReveal>
 
           <ScrollReveal delay={0.15}>
             <div className="space-y-5 text-muted-foreground leading-relaxed">
-              <p>
-                DEWN was created for people whose digestion has changed — whether from age, medication, treatment, or chronic conditions — and who found that existing products were no longer comfortable to consume.
-              </p>
-              <p>
-                We don't add flavors to mask problems. We don't use textures that require tolerance. We engineer nutrition that the body can accept without negotiation.
-              </p>
-              <p>
-                Every decision — from particle size to pH to dissolution rate — is made with one principle: reduce the burden on the body.
-              </p>
-              <p>
-                DEWN is not loud. It is not bold. It is nutrition that gets out of the way.
-              </p>
+              {body.split('\n\n').map((para: string, i: number) => (
+                <p key={i}>{para}</p>
+              ))}
             </div>
           </ScrollReveal>
         </div>
       </div>
     </section>
-  );
+  )
 }

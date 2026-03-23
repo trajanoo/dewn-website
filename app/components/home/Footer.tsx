@@ -1,29 +1,36 @@
 import Link from 'next/link';
+import { client } from '@/sanity/lib/client'
 
-export default function Footer() {
+export default async function Footer() {
+  const query = `*[_type == "footerSettings"][0]{siteName,legalText,links[]{title,url}}`
+  const data = await client.fetch(query)
+
+  const siteName = data?.siteName
+  const legalText = data?.legalText
+  const links = data?.links
+
   return (
     <footer className="py-12 lg:py-16 border-t border-border/50">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
           <div>
-            <span className="font-serif text-lg tracking-wider text-foreground">DEWN</span>
+            <span className="font-serif text-lg tracking-wider text-foreground">{siteName}</span>
             <p className="text-xs text-muted-foreground mt-3 max-w-md leading-relaxed">
-              *These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.
+              {legalText}
             </p>
           </div>
 
           <div className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-muted-foreground">
-            <Link href="/Science" className="hover:text-foreground transition-colors">Clinical Rationale</Link>
-            <Link href="/About" className="hover:text-foreground transition-colors">About</Link>
-            <Link href="/Privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
-            <Link href="/Terms" className="hover:text-foreground transition-colors">Terms of Use</Link>
+            {links.map((l: any, i: number) => (
+              <Link key={i} href={l.url} className="hover:text-foreground transition-colors">{l.title}</Link>
+            ))}
             <a href="mailto:hello@dewn.co" className="hover:text-foreground transition-colors">Contact</a>
           </div>
         </div>
 
         <div className="mt-10 pt-6 border-t border-border/30">
           <p className="text-xs text-muted-foreground/60">
-            © 2026 DEWN LLC. All rights reserved.
+            © {new Date().getFullYear()} {siteName}. All rights reserved.
           </p>
         </div>
       </div>

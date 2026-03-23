@@ -1,72 +1,129 @@
-'use client'
+'use client';
 import ScrollReveal from './ScrollReveal';
 import { Sun, Moon, CheckCircle2 } from 'lucide-react';
+import { client } from '@/sanity/lib/client'
+import { useEffect, useState } from 'react';
 
-const columns = [
-  {
-    title: 'RISE',
-    subtitle: 'Morning',
+
+const fallbackImages: Record<string, { src: string; alt: string }> = {
+  rise: { src: 'https://images.unsplash.com/photo-1495214783159-3503fd1b572d?w=900&q=80', alt: 'DEWN RISE' },
+  set: { src: 'https://media.base44.com/images/public/69bb2e760f85bc431ed88f86/46b57c36f_generated_image.png', alt: 'DEWN SET' },
+}
+
+const atmospheres: Record<string, any> = {
+  rise: {
+    bg: 'from-[#FFFDF7] to-[#F5F0E8]',
+    imageTint: 'bg-amber-50/30',
+    accent: 'text-amber-700/70',
+    iconColor: 'text-amber-600',
+    overlineBorder: 'border-amber-100',
+    fadeColor: '#F5F0E8',
     Icon: Sun,
-    overline: 'Supports stability when the body is most sensitive',
-    items: [
-      { name: 'Muscle preservation', desc: 'Maintains muscle when intake drops' },
-      { name: 'Glucose stability', desc: 'Helps maintain energy when intake is low' },
-      { name: 'Digestive comfort', desc: 'Reduces heaviness and improves tolerance' },
-      { name: 'Nausea relief', desc: 'Easier intake during sensitive states' },
-    ],
   },
-  {
-    title: 'SET',
-    subtitle: 'Evening',
+  set: {
+    bg: 'from-[#F4F6F9] to-[#EBF0F5]',
+    imageTint: 'bg-slate-400/10',
+    accent: 'text-slate-500/70',
+    iconColor: 'text-[#6A9BA0]',
+    overlineBorder: 'border-slate-200',
+    fadeColor: '#EBF0F5',
     Icon: Moon,
-    overline: 'Supports recovery when the body is most receptive',
-    items: [
-      { name: 'Deep sleep', desc: 'Improves sleep quality and restorative rest' },
-      { name: 'Neural recovery', desc: 'Supports cognitive function and mental clarity' },
-      { name: 'Muscle recovery', desc: 'Reduces cramping and supports steady repair' },
-      { name: 'Electrolyte balance', desc: 'Restores key minerals lost during the day' },
-    ],
   },
-];
+}
+
+
+const query = `*[_type == "benefits"][0]{
+  title,
+  columns[]{
+    id,
+    title,
+    subtitle,
+    tagline,
+    overline,
+    items[]{name, desc}
+  }
+}`
 
 export default function BenefitsSection() {
+  const [title, setTitle] = useState('')
+  const [columnsSanity, setColumnsSanity] = useState<any[]>([])
+
+  useEffect(() => {
+    client.fetch(query).then((data) => {
+      setTitle(data?.title ?? '')
+      setColumnsSanity(data?.columns ?? [])
+    })
+  }, [])
+
   return (
-    <section className="py-32 lg:py-44 bg-gradient-to-b from-[hsl(var(--surface-2))] via-[hsl(var(--surface-1))] to-background relative overflow-hidden">
+    <section className="py-32 lg:py-44 bg-white relative overflow-hidden" id="benefits">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-accent/3 rounded-full blur-[100px]" />
-        
+
         <ScrollReveal>
-          <div className="mb-20 relative z-10">
-            <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-foreground tracking-tight font-bold">Benefits</h2>
+          <div className="mb-16 lg:mb-20">
+            <p className="text-xs tracking-[0.25em] uppercase text-muted-foreground/60 mb-4 font-medium">The System</p>
+            <h2 className="font-serif text-4xl sm:text-5xl lg:text-[3rem] text-foreground leading-[1.15] font-normal">
+              {title}
+            </h2>
           </div>
         </ScrollReveal>
 
-        <div className="grid md:grid-cols-2 gap-12 lg:gap-16 relative z-10">
-          {columns.map((col, i) => (
-            <ScrollReveal key={col.title} delay={i * 0.15}>
-              <div className="bg-card/60 backdrop-blur-sm border border-border/50 rounded-3xl p-10 lg:p-12 hover:bg-card hover:border-border transition-all duration-500 hover:shadow-xl hover:shadow-primary/5">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-8 h-8 bg-[#EDEFEE] rounded-full  flex items-center justify-center">
-                    <col.Icon className="w-4 h-4 text-[#6A9BA0]" />
-                  </div>
-                  <span className="text-xs tracking-[0.15em] uppercase text-muted-foreground">{col.subtitle}</span>
-                </div>
-                <h3 className="font-serif text-2xl text-foreground mb-4">{col.title}</h3>
-                <p className="text-sm text-muted-foreground mb-6 leading-relaxed pb-6 border-b border-border/50">{col.overline}</p>
-                <div className="space-y-5">
-                  {col.items.map((item, j) => (
-                    <div key={j} className="flex items-start gap-3">
-                      <CheckCircle2 className="w-4 h-4 text-accent/60 mt-0.5 shrink-0" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground mb-1">{item.name}</p>
-                        <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+        <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
+          {columnsSanity.map((col: any, i: number) => {
+            const image = fallbackImages[col.id]
+
+
+            const atm = atmospheres[col.id] ?? atmospheres.rise
+            const Icon = atm.Icon
+
+            return (
+              <ScrollReveal key={col.id} delay={i * 0.12}>
+                <div className={`bg-gradient-to-b ${atm.bg} rounded-3xl overflow-hidden border border-black/[0.04]`}>
+
+                  <div className="relative h-56 sm:h-64 lg:h-72 overflow-hidden">
+                    <img
+                      src={image.src}
+                      alt={image.alt}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className={`absolute inset-0 ${atm.imageTint}`} />
+                    <div
+                      className="absolute bottom-0 left-0 right-0 h-24"
+                      style={{ background: `linear-gradient(to bottom, transparent, ${atm.fadeColor})` }}
+                    />
+                    <div className="absolute top-5 left-5">
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full backdrop-blur-md bg-white/70 border border-white/50">
+                        <Icon className={`w-3 h-3 ${atm.iconColor}`} />
+                        <span className="text-[10px] font-medium tracking-[0.18em] uppercase text-foreground/70">
+                          {col.subtitle}
+                        </span>
                       </div>
                     </div>
-                  ))}
+                  </div>
+
+                  <div className="px-8 pb-10 pt-2 lg:px-10 lg:pb-12">
+                    <h3 className="font-serif text-2xl lg:text-3xl text-foreground font-normal mb-1">{col.title}</h3>
+                    <p className={`text-sm font-medium mb-5 ${atm.accent}`}>{col.tagline}</p>
+                    <p className={`text-sm text-muted-foreground leading-relaxed pb-6 mb-6 border-b ${atm.overlineBorder}`}>
+                      {col.overline}
+                    </p>
+                    <div className="space-y-4">
+                      {col.items?.map((item: any, j: number) => (
+                        <div key={j} className="flex items-start gap-3">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-foreground/20 mt-0.5 shrink-0" />
+                          <div>
+                            <p className="text-sm font-medium text-foreground mb-0.5">{item.name}</p>
+                            <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
                 </div>
-              </div>
-            </ScrollReveal>
-          ))}
+              </ScrollReveal>
+            )
+          })}
         </div>
       </div>
     </section>
