@@ -41,10 +41,11 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
           ? 'bg-background/80 backdrop-blur-xl border-b border-border/50'
           : 'bg-transparent'
-        }`}
+      }`}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8 flex items-center justify-between h-16 lg:h-20">
         <Link href="/" className="font-serif text-xl  text-foreground">
@@ -62,7 +63,7 @@ export default function Navbar() {
                 <button
                   key={i}
                   onClick={() => scrollTo(m.target)}
-                  className="text-sm cursor-pointer px-5 py-2 rounded-pill bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+                  className="text-sm cursor-pointer px-5 py-2 rounded-pill bg-[#1E2429] text-primary-foreground hover:opacity-90 transition-opacity"
                 >
                   {m.label}
                 </button>
@@ -86,46 +87,47 @@ export default function Navbar() {
         </button>
       </div>
 
-      <div
-        className={`md:hidden bg-background/95 backdrop-blur-xl border-b border-border transition-all duration-300 ease-in-out overflow-hidden ${menuOpen
-            ? 'max-h-96 opacity-100 translate-y-0'
-            : 'max-h-0 opacity-0 -translate-y-2 pointer-events-none'
-          }`}
-      >
-        <div className="px-6 py-4 flex flex-col gap-4">
-          {menuItems ? (
-            menuItems.map((m, i) => {
-              const label = String(m.label ?? '').trim()
-              const target = String(m.target ?? '').trim()
-              const isWaitlist = /waitlist|join\s*waitlist/i.test(label) || /waitlist|finalCTA/i.test(target)
-              return isWaitlist ? (
-                <button key={i} onClick={() => scrollTo(m.target)} className="text-sm px-5 py-2 rounded-pill bg-primary text-primary-foreground w-fit">
-                  {m.label}
+        <div
+  className={`md:hidden bg-background/95 backdrop-blur-xl border-b border-border transition-all duration-300 ease-in-out overflow-hidden ${
+    menuOpen
+      ? 'max-h-96 opacity-100 translate-y-0'
+      : 'max-h-0 opacity-0 -translate-y-2 pointer-events-none'
+  }`}
+>
+          <div className="px-6 py-4 flex flex-col gap-4">
+            {menuItems ? (
+              menuItems.map((m, i) => {
+                const label = String(m.label ?? '').trim()
+                const target = String(m.target ?? '').trim()
+                const isWaitlist = /waitlist|join\s*waitlist/i.test(label) || /waitlist|finalCTA/i.test(target)
+                return isWaitlist ? (
+                  <button key={i} onClick={() => scrollTo(m.target)} className="text-sm px-5 py-2 rounded-pill bg-[#1E2429] text-primary-foreground w-fit">
+                    {m.label}
+                  </button>
+                ) : (
+                  <button key={i} onClick={() => scrollTo(m.target)} className="text-sm text-muted-foreground text-left">
+                    {m.label}
+                  </button>
+                )
+              })
+            ) : (
+              <>
+                <button onClick={() => scrollTo('science')} className="text-sm text-muted-foreground text-left">
+                  Science
                 </button>
-              ) : (
-                <button key={i} onClick={() => scrollTo(m.target)} className="text-sm text-muted-foreground text-left">
-                  {m.label}
+                <button onClick={() => scrollTo('about')} className="text-sm text-muted-foreground text-left">
+                  About
                 </button>
-              )
-            })
-          ) : (
-            <>
-              <button onClick={() => scrollTo('science')} className="text-sm text-muted-foreground text-left">
-                Science
-              </button>
-              <button onClick={() => scrollTo('about')} className="text-sm text-muted-foreground text-left">
-                About
-              </button>
-              <button
-                onClick={() => scrollTo('finalCTA')}
-                className="text-sm px-5 py-2 rounded-pill bg-[#1E2429] text-primary-foreground w-fit"
-              >
-                Join Waitlist
-              </button>
-            </>
-          )}
+                <button
+                  onClick={() => scrollTo('finalCTA')}
+                  className="text-sm px-5 py-2 rounded-pill bg-[#1E2429] text-primary-foreground w-fit"
+                >
+                  Join Waitlist
+                </button>
+              </>
+            )}
+          </div>
         </div>
-      </div>
 
     </nav>
   );
