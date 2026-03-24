@@ -1,7 +1,7 @@
 import {DocumentIcon} from '@sanity/icons'
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
-export const footerType = defineType({
+export const footerSettings = defineType({
   name: 'footerSettings',
   title: 'Footer Settings',
   type: 'document',

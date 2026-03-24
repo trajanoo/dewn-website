@@ -9,7 +9,7 @@ import {aboutType} from './aboutType'
 import {benefitsType} from './benefitsType'
 import {productType} from './productType'
 import {faqType} from './faqType'
-import {footerType} from './footerType'
+import {footerSettings} from './footerSettings'
 import {clinicalBannerType} from './clinicalBannerType'
 import {engineeringType} from './engineeringType'
 import {finalCTAType} from './finalCTAType'
@@ -30,7 +30,7 @@ export const schema: { types: SchemaTypeDefinition[] } = {
     benefitsType,
     productType,
     faqType,
-    footerType,
+    footerSettings,
     clinicalBannerType,
     engineeringType,
     finalCTAType,

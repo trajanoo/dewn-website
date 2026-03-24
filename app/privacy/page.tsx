@@ -2,13 +2,14 @@ import Navbar from '../components/home/Navbar';
 import Footer from '../components/home/Footer';
 import ScrollReveal from '../components/home/ScrollReveal';
 import { client } from '@/sanity/lib/client'
+import { PortableText } from '@portabletext/react'
 
 export default async function Privacy() {
-  const page = await client.fetch(`*[_type == "staticPage" && slug.current == "privacy"][0]{title,intro,body}`)
+  const page = await client.fetch(`*[_type == "staticPage" && slug.current == "privacy"][0]{title,intro,sections[]{number,title,body}}`)
 
   const title = page?.title ?? 'Privacy Policy'
   const intro = page?.intro ?? 'DEWN LLC ("DEWN," "we," "us," "our") provides this Privacy Policy...'
-  const body = page?.body ?? ''
+  const sections = page?.sections ?? []
 
   return (
     <div className="min-h-screen bg-background">
@@ -31,8 +32,13 @@ export default async function Privacy() {
           <ScrollReveal delay={0.1}>
             <div className="prose prose-sm max-w-none">
               <p className="text-muted-foreground leading-relaxed mb-8">{intro}</p>
-              {body.split('\n\n').map((p: string, i: number) => (
-                <p key={i} className="text-muted-foreground leading-relaxed mb-4">{p}</p>
+              {sections.map((section: any, i: number) => (
+                <div key={i} className="mb-8">
+                  {section.title && <h3 className="font-serif text-lg text-foreground mb-3">{section.title}</h3>}
+                  <div className="text-muted-foreground leading-relaxed">
+                    <PortableText value={section.body} />
+                  </div>
+                </div>
               ))}
             </div>
           </ScrollReveal>

@@ -55,11 +55,24 @@ export default function Navbar() {
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-8">
           {menuItems ? (
-            menuItems.map((m, i) => (
-              <button key={i} onClick={() => scrollTo(m.target)} className="text-sm cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
-                {m.label}
-              </button>
-            ))
+            menuItems.map((m, i) => {
+              const label = String(m.label ?? '').trim()
+              const target = String(m.target ?? '').trim()
+              const isWaitlist = /waitlist|join\s*waitlist/i.test(label) || /waitlist|finalCTA/i.test(target)
+              return isWaitlist ? (
+                <button
+                  key={i}
+                  onClick={() => scrollTo(m.target)}
+                  className="text-sm cursor-pointer px-5 py-2 rounded-pill bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+                >
+                  {m.label}
+                </button>
+              ) : (
+                <button key={i} onClick={() => scrollTo(m.target)} className="text-sm cursor-pointer text-muted-foreground hover:text-foreground transition-colors">
+                  {m.label}
+                </button>
+              )
+            })
           ) : (
             <>
               <button onClick={() => scrollTo('science')} className="text-sm cursor-pointer text-muted-foreground hover:text-foreground transition-colors">Science</button>
@@ -77,18 +90,37 @@ export default function Navbar() {
       {menuOpen && (
         <div className="md:hidden bg-background/95 backdrop-blur-xl border-b border-border">
           <div className="px-6 py-4 flex flex-col gap-4">
-            <button onClick={() => scrollTo('science')} className="text-sm text-muted-foreground text-left">
-              Science
-            </button>
-            <button onClick={() => scrollTo('about')} className="text-sm text-muted-foreground text-left">
-              About
-            </button>
-            <button
-              onClick={() => scrollTo('finalCTA')}
-              className="text-sm px-5 py-2 rounded-pill bg-[#1E2429] text-primary-foreground w-fit"
-            >
-              Join Waitlist
-            </button>
+            {menuItems ? (
+              menuItems.map((m, i) => {
+                const label = String(m.label ?? '').trim()
+                const target = String(m.target ?? '').trim()
+                const isWaitlist = /waitlist|join\s*waitlist/i.test(label) || /waitlist|finalCTA/i.test(target)
+                return isWaitlist ? (
+                  <button key={i} onClick={() => scrollTo(m.target)} className="text-sm px-5 py-2 rounded-pill bg-primary text-primary-foreground w-fit">
+                    {m.label}
+                  </button>
+                ) : (
+                  <button key={i} onClick={() => scrollTo(m.target)} className="text-sm text-muted-foreground text-left">
+                    {m.label}
+                  </button>
+                )
+              })
+            ) : (
+              <>
+                <button onClick={() => scrollTo('science')} className="text-sm text-muted-foreground text-left">
+                  Science
+                </button>
+                <button onClick={() => scrollTo('about')} className="text-sm text-muted-foreground text-left">
+                  About
+                </button>
+                <button
+                  onClick={() => scrollTo('finalCTA')}
+                  className="text-sm px-5 py-2 rounded-pill bg-[#1E2429] text-primary-foreground w-fit"
+                >
+                  Join Waitlist
+                </button>
+              </>
+            )}
           </div>
         </div>
       )}
