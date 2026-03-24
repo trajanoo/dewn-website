@@ -55,11 +55,11 @@ export default async function HeroSection() {
                   <span className="text-xs font-medium tracking-wide text-foreground">Engineered for Sensitivity</span>
                 </div>
 
-                <div className="aspect-[3/4] max-h-[70vh] rounded-2xl overflow-hidden bg-muted">
+                <div className="md:aspect-[3/4] max-h-[37vh] md:max-h-[70vh] rounded-2xl overflow-hidden bg-muted">
                   <img
                     src={imageUrl}
                     alt="Person holding a crystal-clear glass in morning light"
-                    className="w-full h-full object-cover"
+                    className="w-full  h-full object-cover"
                   />
                 </div>
               </div>
