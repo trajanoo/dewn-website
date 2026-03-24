@@ -19,7 +19,16 @@ export default async function HeroSection() {
           <div className="order-2 lg:order-1">
             <ScrollReveal delay={0.1}>
               <h1 className="font-serif font-bold text-4xl sm:text-5xl lg:text-6xl 2xl:text-[70px] leading-tight text-foreground">
-                {title}
+                {(() => {
+                  if (!title) return null
+                  return title.split(/(slowed)/i).map((part, i) =>
+                    /^(slowed)$/i.test(part) ? (
+                      <span key={i} className="text-[#6A9BA0]">{part}</span>
+                    ) : (
+                      <span key={i}>{part}</span>
+                    ),
+                  )
+                })()}
               </h1>
             </ScrollReveal>
 
