@@ -1,8 +1,6 @@
-'use client';
 import ScrollReveal from './ScrollReveal';
 import { Sun, Moon, CheckCircle2 } from 'lucide-react';
 import { client } from '@/sanity/lib/client'
-import { useEffect, useState } from 'react';
 
 
 const fallbackImages: Record<string, { src: string; alt: string }> = {
@@ -44,21 +42,11 @@ const query = `*[_type == "benefits"][0]{
   }
 }`
 
-export default function BenefitsSection() {
-  
-  const [title, setTitle] = useState('')
-  const [columnsSanity, setColumnsSanity] = useState<any[]>([])
+export default async function BenefitsSection() {
+  const data = await client.fetch(query)
 
-  useEffect(() => {
-    client.fetch(query).then((data) => {
-      setTitle(data?.title ?? '')
-      setColumnsSanity(data?.columns ?? [])
-    })
-  }, [])
-
-  if (!columnsSanity || columnsSanity.length === 0) {
-  return null
-}
+  const title = data?.title
+  const columnsSanity = data?.columns
 
   return (
     <section className="py-32 lg:py-44 bg-white relative overflow-hidden" id="benefits">
@@ -75,8 +63,6 @@ export default function BenefitsSection() {
 
         <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
           {columnsSanity.map((col: any, i: number) => {
-            if(!col) return null
-            
 const image = fallbackImages[col.id] ?? fallbackImages.rise
 
 
