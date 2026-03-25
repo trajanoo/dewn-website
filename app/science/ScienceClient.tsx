@@ -15,10 +15,11 @@ interface Props {
   pageTitle: string | null
   pageSubtitle: string | null
   disclaimer: string | null
-  sections: Section[]
+  extraSections: Section[]
+  sanityOverrides: Record<number, Section>
 }
 
-const hardcodedSections: Array<any> = [
+const hardcodedSections: Array<{ number: number; title: string; body: React.ReactNode }> = [
   {
     number: 4,
     title: 'Protein Performance in Acidic Conditions — DEWN RISE',
@@ -194,72 +195,61 @@ const hardcodedSections: Array<any> = [
   },
 ]
 
-export default function ScienceClient({ pageTitle, pageSubtitle, disclaimer, sections }: Props) {
+export default function ScienceClient({ pageTitle, pageSubtitle, disclaimer, extraSections, sanityOverrides }: Props) {
   const mergedSections = useMemo(() => {
-    const sanityByNum = new Map((sections || []).map((s) => [String(s.number), s]))
-    const result: any[] = hardcodedSections.map((h) => sanityByNum.get(String(h.number)) ?? h)
-    ;(sections || []).forEach((s) => {
-      if (!result.find((r) => String(r.number) === String(s.number))) result.push(s)
-    })
+    const result = hardcodedSections.map((h) => sanityOverrides[h.number] ?? h)
+    extraSections.forEach((s) => result.push(s))
     result.sort((a, b) => Number(a.number) - Number(b.number))
     return result
-  }, [sections])
+  }, [extraSections, sanityOverrides])
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="pt-32 pb-24 lg:pt-40 lg:pb-36">
-        <div className="max-w-5xl mx-auto px-6 lg:px-8">
-          <ScrollReveal>
-            <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3">Technical Documentation</p>
-            <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-foreground leading-tight mb-6">
-              {pageTitle}
-            </h1>
-            <p className="text-xl text-foreground/70 mb-12">
-              {pageSubtitle}
-            </p>
-          </ScrollReveal>
+    <div className="pt-32 pb-24 lg:pt-40 lg:pb-36">
+      <div className="max-w-5xl mx-auto px-6 lg:px-8">
+        <ScrollReveal>
+          <p className="text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3">Technical Documentation</p>
+          <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-foreground leading-tight mb-6">
+            {pageTitle}
+          </h1>
+          <p className="text-xl text-foreground/70 mb-12">{pageSubtitle}</p>
+        </ScrollReveal>
 
-          <ScrollReveal delay={0.1}>
-            <div className="bg-muted/30 border border-border/50 rounded-xl p-6 mb-16">
-              <p className="text-xs font-medium text-foreground mb-2">Disclaimer</p>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {disclaimer}
-              </p>
-            </div>
-          </ScrollReveal>
+        <ScrollReveal delay={0.1}>
+          <div className="bg-muted/30 border border-border/50 rounded-xl p-6 mb-16">
+            <p className="text-xs font-medium text-foreground mb-2">Disclaimer</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">{disclaimer}</p>
+          </div>
+        </ScrollReveal>
 
-          {mergedSections.map((section: any, i: number) => (
-            <ScrollReveal key={i} delay={0.15 + i * 0.05}>
-              <div className="mb-16 pb-10 border-border/50">
-                <h2 className="font-serif text-3xl text-foreground mb-6">
-                  {section.number}. {section.title}
-                </h2>
-                <div className="space-y-4 text-muted-foreground leading-relaxed">
-                  {Array.isArray(section.body) ? (
-                    <PortableText value={section.body} />
-                  ) : React.isValidElement(section.body) ? (
-                    section.body
-                  ) : typeof section.body === 'string' ? (
-                    section.body.split('\n\n').map((p: string, j: number) => (
-                      <p key={j} className="text-muted-foreground leading-relaxed">{p}</p>
-                    ))
-                  ) : null}
-                </div>
+        {mergedSections.map((section, i) => (
+          <ScrollReveal key={section.number} delay={0.15 + i * 0.05}>
+            <div className="mb-16 pb-10 border-border/50">
+              <h2 className="font-serif text-3xl text-foreground mb-6">
+                {section.number}. {section.title}
+              </h2>
+              <div className="space-y-4 text-muted-foreground leading-relaxed">
+                {Array.isArray(section.body) ? (
+                  <PortableText value={section.body} />
+                ) : React.isValidElement(section.body) ? (
+                  section.body
+                ) : typeof section.body === 'string' ? (
+                  section.body.split('\n\n').map((p: string, j: number) => (
+                    <p key={j} className="text-muted-foreground leading-relaxed">{p}</p>
+                  ))
+                ) : null}
               </div>
-            </ScrollReveal>
-          ))}
-
-          <ScrollReveal delay={0.85}>
-            <div className="pt-10 border-border/50">
-              <p className="text-xs text-muted-foreground/60 leading-relaxed">
-                DEWN RISE™ and DEWN SET™ are trademarks of DEWN LLC. © 2026 DEWN LLC. All rights reserved.
-              </p>
             </div>
           </ScrollReveal>
-        </div>
+        ))}
+
+        <ScrollReveal delay={0.85}>
+          <div className="pt-10 border-border/50">
+            <p className="text-xs text-muted-foreground/60 leading-relaxed">
+              DEWN RISE™ and DEWN SET™ are trademarks of DEWN LLC. © 2026 DEWN LLC. All rights reserved.
+            </p>
+          </div>
+        </ScrollReveal>
       </div>
-      <Footer />
     </div>
   )
 }
