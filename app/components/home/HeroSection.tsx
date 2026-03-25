@@ -21,7 +21,7 @@ export default async function HeroSection() {
               <h1 className="font-serif font-bold text-4xl sm:text-5xl lg:text-6xl 2xl:text-[70px] leading-tight text-foreground">
                 {(() => {
                   if (!title) return null
-                  return title.split(/(slowed)/i).map((part, i) =>
+                  return title.split(/(slowed)/i).map((part: string, i: number) =>
                     /^(slowed)$/i.test(part) ? (
                       <span key={i} className="text-[#6A9BA0]">{part}</span>
                     ) : (
