@@ -389,8 +389,6 @@ function IngredientsDesktop({ items }: { items: SanityItem[] }) {
 export default function IngredientsSectionClient({ items }: { items: SanityItem[] }) {
   const isDesktop = useIsDesktop();
 
-  if (isDesktop === undefined) return null;
-
-  if (!isDesktop) return <IngredientsMobile />;
+  if (!isDesktop) return <IngredientsMobile items={items} />;
   return <IngredientsDesktop items={items} />;
 }
