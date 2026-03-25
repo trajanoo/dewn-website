@@ -45,6 +45,7 @@ const query = `*[_type == "benefits"][0]{
 }`
 
 export default function BenefitsSection() {
+  
   const [title, setTitle] = useState('')
   const [columnsSanity, setColumnsSanity] = useState<any[]>([])
 
@@ -54,6 +55,10 @@ export default function BenefitsSection() {
       setColumnsSanity(data?.columns ?? [])
     })
   }, [])
+
+  if (!columnsSanity || columnsSanity.length === 0) {
+  return null
+}
 
   return (
     <section className="py-32 lg:py-44 bg-white relative overflow-hidden" id="benefits">
@@ -70,7 +75,9 @@ export default function BenefitsSection() {
 
         <div className="grid md:grid-cols-2 gap-6 lg:gap-8">
           {columnsSanity.map((col: any, i: number) => {
-            const image = fallbackImages[col.id]
+            if(!col) return null
+            
+const image = fallbackImages[col.id] ?? fallbackImages.rise
 
 
             const atm = atmospheres[col.id] ?? atmospheres.rise
