@@ -42,9 +42,61 @@ export default async function ProductsSection() {
                 </div>
 
                 <div className={i === 1 ? 'lg:order-1' : ''}>
-                  <h3 className="font-serif text-3xl lg:text-4xl text-foreground mb-6">{product.name}</h3>
-                  <p className="text-sm text-muted-foreground">{product.tagline}</p>
-                </div>
+  <div className="mb-3">
+    <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground/70">
+      {product.tagline}
+    </span>
+  </div>
+
+  <h3 className="font-serif text-3xl lg:text-4xl text-foreground mb-8 tracking-tight">
+    {product.name}
+  </h3>
+
+  <div className="space-y-7">
+
+    {product.whatItIs && (
+      <div>
+        <p className="text-xs font-medium uppercase tracking-wider text-foreground/60 mb-3">
+          What it is
+        </p>
+        <p className="text-base text-foreground/70 leading-relaxed font-light">
+          {product.whatItIs}
+        </p>
+      </div>
+    )}
+
+    {product.whyItWorks && (
+      <div>
+        <p className="text-xs font-medium uppercase tracking-wider text-foreground/60 mb-3">
+          Why it works
+        </p>
+        <p className="text-base text-foreground/70 leading-relaxed font-light">
+          {product.whyItWorks}
+        </p>
+      </div>
+    )}
+
+    {product.experience?.length > 0 && (
+      <div>
+        <p className="text-xs font-medium uppercase tracking-wider text-foreground/60 mb-4">
+          Experience
+        </p>
+        <ul className="space-y-3">
+          {product.experience.map((line: string, j: number) => (
+            <li
+              key={j}
+              className="text-base text-foreground/70 leading-relaxed flex items-start gap-3 font-light"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-accent mt-2.5 shrink-0" />
+              {line}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+  </div>
+</div>
 
               </div>
             </ScrollReveal>
