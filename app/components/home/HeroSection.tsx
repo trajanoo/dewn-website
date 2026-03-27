@@ -33,14 +33,14 @@ export default async function HeroSection() {
             </ScrollReveal>
 
             <ScrollReveal delay={0.25}>
-              <div className="w-12 h-[2px] bg-gradient-to-r from-[#77A4A8] to-transparent mt-8 mb-8" />
-              <p className="mt-6 text-base lg:text-lg text-muted-foreground leading-relaxed max-w-lg">
+              
+              <p className="mt-6 text-base lg:text-lg text-[#494949] leading-relaxed max-w-lg">
                 {subtitle}
               </p>
             </ScrollReveal>
 
             <ScrollReveal delay={0.4}>
-              <div className="mt-8" id="waitlist">
+              <div className="mt-8 2xl:mt-16" id="waitlist">
                 <WaitlistForm instanceId='hero' />
                 <p className="md:block text-white mt-3 text-xs md:text-muted-foreground tracking-wide">Launching soon.</p>
               </div>
@@ -50,10 +50,6 @@ export default async function HeroSection() {
           <div className="order-1 lg:order-2 relative">
             <ScrollReveal delay={0.2} direction="right">
               <div className="relative">
-
-                <div className="hidden lg:block absolute transition duration-400 hover:scale-105 top-4 right-10 2xl:right-1 z-10 bg-white/90 backdrop-blur-sm border border-border/50 rounded-full px-4 py-2 shadow-sm">
-                  <span className="text-xs font-medium tracking-wide text-foreground">Engineered for Sensitivity</span>
-                </div>
 
                 <div className="md:aspect-[3/4] max-h-[37vh] md:max-h-[70vh] rounded-2xl overflow-hidden bg-muted">
                   <img

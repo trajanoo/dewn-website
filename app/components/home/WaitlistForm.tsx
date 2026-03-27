@@ -13,10 +13,10 @@ interface WaitlistFormProps {
 export default function WaitlistForm({ dark = false, instanceId = 'default' }: WaitlistFormProps) {
   const iFrameName = `_zcSignup${instanceId}`
 
-  const [email, setEmail]           = useState('')
-  const [submitted, setSubmitted]   = useState(false)
-  const [loading, setLoading]       = useState(false)
-  const iframeRef                   = useRef<HTMLIFrameElement>(null)
+  const [email, setEmail] = useState('')
+  const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const iframeRef = useRef<HTMLIFrameElement>(null)
 
   useEffect(() => {
     const iframe = iframeRef.current
@@ -46,7 +46,7 @@ export default function WaitlistForm({ dark = false, instanceId = 'default' }: W
     setLoading(true)
 
     if (typeof (window as any).gtag === 'function') {
-      ;(window as any).gtag('event', 'waitlist_submit', {
+      ; (window as any).gtag('event', 'waitlist_submit', {
         event_category: 'engagement',
         event_label: 'Zoho Waitlist Form',
       })
@@ -73,18 +73,18 @@ export default function WaitlistForm({ dark = false, instanceId = 'default' }: W
         className="flex flex-col sm:flex-row gap-3 w-full max-w-md"
       >
 
-        <input type="hidden" name="submitType"      value="optinCustomView" />
-        <input type="hidden" name="emailReportId"   value="" />
-        <input type="hidden" name="formType"        value="QuickForm" />
-        <input type="hidden" name="zx"              value="1dfc313f00" />
-        <input type="hidden" name="zcvers"          value="2.0" />
-        <input type="hidden" name="oldListIds"      value="" />
-        <input type="hidden" name="mode"            value="OptinCreateView" />
-        <input type="hidden" name="zcld"            value="14b5052434da3fe7" />
-        <input type="hidden" name="zctd"            value="14b5052434da3e31" />
+        <input type="hidden" name="submitType" value="optinCustomView" />
+        <input type="hidden" name="emailReportId" value="" />
+        <input type="hidden" name="formType" value="QuickForm" />
+        <input type="hidden" name="zx" value="1dfc313f00" />
+        <input type="hidden" name="zcvers" value="2.0" />
+        <input type="hidden" name="oldListIds" value="" />
+        <input type="hidden" name="mode" value="OptinCreateView" />
+        <input type="hidden" name="zcld" value="14b5052434da3fe7" />
+        <input type="hidden" name="zctd" value="14b5052434da3e31" />
         <input type="hidden" name="document_domain" value="" />
-        <input type="hidden" name="zc_trackCode"    value="ZCFORMVIEW" />
-        <input type="hidden" name="zc_formIx"       value={ZOHO_FORM_ID} />
+        <input type="hidden" name="zc_trackCode" value="ZCFORMVIEW" />
+        <input type="hidden" name="zc_formIx" value={ZOHO_FORM_ID} />
 
         <input
           type="email"
@@ -94,24 +94,37 @@ export default function WaitlistForm({ dark = false, instanceId = 'default' }: W
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Your email"
           required
-          className={`flex-1 px-5 py-3 rounded-full text-sm outline-none transition-all duration-200 ${
-            dark
+          className={`flex-1 px-5 py-3 rounded-full text-sm outline-none transition-all duration-200 ${dark
               ? 'bg-white/10 border border-white/20 text-white placeholder:text-white/40 focus:border-white/40'
               : 'bg-white border border-border text-foreground placeholder:text-muted-foreground focus:border-foreground/30'
-          }`}
+            }`}
         />
 
         <button
           type="submit"
           disabled={loading}
-          className={`px-7 py-3 rounded-full text-sm font-medium transition-all duration-200 whitespace-nowrap ${
-            dark
-              ? 'bg-white text-foreground hover:bg-white/90'
-              : 'bg-[#1E2429] text-primary-foreground hover:opacity-90'
-          } ${loading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+          className={`relative overflow-hidden px-7 py-3 rounded-full
+  text-sm font-medium whitespace-nowrap
+  transform transition-all duration-500
+  hover:scale-105
+
+  ${dark
+              ? 'bg-white text-foreground hover:bg-white/90 shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_30px_rgba(255,255,255,0.25)]'
+              : 'bg-[#1E2429] text-primary-foreground shadow-[0_0_20px_rgba(0,0,0,0.25)] hover:shadow-[0_0_35px_rgba(0,0,0,0.4)]'
+            }
+
+  ${loading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
+
+  before:absolute before:top-0 before:left-[-75%] before:w-[50%] before:h-full
+  before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent
+  before:skew-x-[-25deg]
+  before:transition-all before:duration-700
+  hover:before:left-[125%]
+`}
         >
           {loading ? 'Joining...' : 'Join the Waitlist'}
         </button>
+
       </form>
     </>
   )
