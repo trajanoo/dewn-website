@@ -14,6 +14,7 @@ export default async function HeroSection() {
 
   return (
     <section className="min-h-screen bg-[#F7F6F4] flex items-center pt-20 lg:pt-0 relative overflow-hidden">
+      
       <div className="max-w-7xl mx-auto px-6 lg:px-8 w-full">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           <div className="order-2 lg:order-1">

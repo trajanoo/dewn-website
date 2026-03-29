@@ -9,14 +9,19 @@ export default async function ProductsSection() {
   }`
 
   const res = await client.fetch(query)
-
+  console.log('Produtos do Sanity:', res?.map((p: any) => p.name))
   const products = (res ?? []).map((p: any) => ({
     ...p,
     image: p.image ? urlFor(p.image).width(1200).url() : null,
-  }))
+  })).sort((a: any, b: any) => {
+    const order = ['rise', 'set'];
+    const indexA = order.findIndex(name => a.name?.toLowerCase() === name);
+    const indexB = order.findIndex(name => b.name?.toLowerCase() === name);
+    return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
+  });
 
   return (
-    <section className="relative py-32 lg:py-44 bg-gradient-to-b from-background to-[hsl(var(--surface-1))]">
+    <section className="relative py-32 lg:py-44 bg-[#f0ede8] from-background to-[hsl(var(--surface-1))]">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
 
         <ScrollReveal>
@@ -42,61 +47,77 @@ export default async function ProductsSection() {
                 </div>
 
                 <div className={i === 1 ? 'lg:order-1' : ''}>
-  <div className="mb-3">
-    <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground/70">
-      {product.tagline}
-    </span>
-  </div>
+                  <div className="mb-3">
+                    <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground/70">
+                      {product.tagline}
+                    </span>
+                  </div>
 
-  <h3 className="font-serif text-3xl lg:text-4xl text-foreground mb-8 tracking-tight">
-    {product.name}
-  </h3>
+                  <div className="mb-8 w-36">
+                    {product.name?.toLowerCase() === 'rise' ? (
+                      <img
+                        src="/assets/Copy of Rise Text.svg"
+                        alt="RISE"
+                        className="w-full h-auto"
+                      />
+                    ) : product.name?.toLowerCase() === 'set' ? (
+                      <img
+                        src="/assets/Copy of Set Text.svg"
+                        alt="SET"
+                        className="w-full h-auto"
+                      />
+                    ) : (
+                      <h3 className="font-serif text-3xl lg:text-4xl text-foreground tracking-tight">
+                        {product.name}
+                      </h3>
+                    )}
+                  </div>
 
-  <div className="space-y-7">
+                  <div className="space-y-7">
 
-    {product.whatItIs && (
-      <div>
-        <p className="text-xs font-medium uppercase tracking-wider text-foreground/60 mb-3">
-          What it is
-        </p>
-        <p className="text-base text-foreground/70 leading-relaxed font-light">
-          {product.whatItIs}
-        </p>
-      </div>
-    )}
+                    {product.whatItIs && (
+                      <div>
+                        <p className="text-xs font-medium uppercase tracking-wider text-foreground/60 mb-3">
+                          What it is
+                        </p>
+                        <p className="text-base text-foreground/70 leading-relaxed font-light">
+                          {product.whatItIs}
+                        </p>
+                      </div>
+                    )}
 
-    {product.whyItWorks && (
-      <div>
-        <p className="text-xs font-medium uppercase tracking-wider text-foreground/60 mb-3">
-          Why it works
-        </p>
-        <p className="text-base text-foreground/70 leading-relaxed font-light">
-          {product.whyItWorks}
-        </p>
-      </div>
-    )}
+                    {product.whyItWorks && (
+                      <div>
+                        <p className="text-xs font-medium uppercase tracking-wider text-foreground/60 mb-3">
+                          Why it works
+                        </p>
+                        <p className="text-base text-foreground/70 leading-relaxed font-light">
+                          {product.whyItWorks}
+                        </p>
+                      </div>
+                    )}
 
-    {product.experience?.length > 0 && (
-      <div>
-        <p className="text-xs font-medium uppercase tracking-wider text-foreground/60 mb-4">
-          Experience
-        </p>
-        <ul className="space-y-3">
-          {product.experience.map((line: string, j: number) => (
-            <li
-              key={j}
-              className="text-base text-foreground/70 leading-relaxed flex items-start gap-3 font-light"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-accent mt-2.5 shrink-0" />
-              {line}
-            </li>
-          ))}
-        </ul>
-      </div>
-    )}
+                    {product.experience?.length > 0 && (
+                      <div>
+                        <p className="text-xs font-medium uppercase tracking-wider text-foreground/60 mb-4">
+                          Experience
+                        </p>
+                        <ul className="space-y-3">
+                          {product.experience.map((line: string, j: number) => (
+                            <li
+                              key={j}
+                              className="text-base text-foreground/70 leading-relaxed flex items-start gap-3 font-light"
+                            >
+                              <span className="w-1.5 h-1.5 rounded-full bg-accent mt-2.5 shrink-0" />
+                              {line}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
 
-  </div>
-</div>
+                  </div>
+                </div>
 
               </div>
             </ScrollReveal>

@@ -349,23 +349,24 @@ function IngredientsDesktop({ items }: { items: SanityItem[] }) {
         )}
 
         <div className="relative z-10 h-screen">
-          {beatStates.map((beat) => (
+          {beatStates.map((beat, index  ) => (
             <motion.div
               key={beat.id}
               animate={{ opacity: beat.opacity, x: beat.xOffset }}
               transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className={`pointer-events-none absolute top-1/2 -translate-y-1/2 ${sizeStyles[beat.size].maxWidth} ${
-                beat.align === 'left'
+              className={`pointer-events-none absolute top-1/2 -translate-y-1/2 ${sizeStyles[beat.size].maxWidth} ${beat.align === 'left'
                   ? 'left-[6vw] items-start text-left'
                   : 'right-[6vw] items-end text-right'
-              } flex flex-col`}
+                } flex flex-col`}
             >
               <div className={`mb-5 flex items-center gap-4 ${beat.align === 'right' ? 'flex-row-reverse' : ''}`}>
-                <p className="text-xs font-medium uppercase tracking-[0.22em] text-[#2563EB]">
-                  What&apos;s Inside
-                </p>
+                {index === 0 && (
+                  <p className="text-xs font-medium uppercase tracking-[0.22em] text-[#2563EB]">
+                    What&apos;s Inside
+                  </p>
+                )}
                 {beat.label && (
-                  <span className="text-xs font-mono text-[#0D0D0D]/25 tracking-widest">
+                  <span className="text-xs font-bold text-[#0D0D0D]/25 tracking-widest">
                     {beat.label} / 05
                   </span>
                 )}
