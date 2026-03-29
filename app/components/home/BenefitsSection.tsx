@@ -23,7 +23,7 @@ interface BenefitsData {
   columns: Column[];
 }
 
-// ─── Static fallback data (replace with Sanity fetch in server component) ─────
+// ─── Static fallback data ─────────────────────────────────────────────────────
 const FALLBACK_DATA: BenefitsData = {
   title: 'Two Phases. Zero Friction.',
   columns: [
@@ -60,33 +60,42 @@ const FALLBACK_DATA: BenefitsData = {
 
 // ─── Image config ──────────────────────────────────────────────────────────────
 const IMAGES: Record<string, string> = {
-  // Full-width hero image shown only on desktop, above the two columns
   hero: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=2400&q=90',
   rise: 'https://images.unsplash.com/photo-1495214783159-3503fd1b572d?w=1200&q=85',
   set:  'https://media.base44.com/images/public/69bb2e760f85bc431ed88f86/46b57c36f_generated_image.png',
 };
 
-// ─── Theme config ──────────────────────────────────────────────────────────────
+// ─── Theme config — very minimal color difference between RISE / SET ──────────
 const THEMES = {
   rise: {
-    bg: '#FFFDF7',
-    accent: '#B07D3A',
-    pill: 'bg-amber-50/90 text-amber-800 border-amber-100',
-    check: 'text-amber-400',
-    divider: 'border-amber-100',
+    // Warm white — barely tinted
+    bg: 'linear-gradient(160deg, #FAFAF8 0%, #F5F3EE 100%)',
+    cardBg: '#FAFAF8',
+    accent: '#A07840',
+    pillBg: 'rgba(250,248,244,0.92)',
+    pillText: '#8C6830',
+    pillBorder: 'rgba(160,120,64,0.15)',
+    checkColor: '#B08040',
+    divider: 'rgba(160,120,64,0.12)',
     Icon: Sun,
+    iconColor: '#C09050',
   },
   set: {
-    bg: '#F4F6F9',
-    accent: '#5A8A90',
-    pill: 'bg-slate-50/90 text-slate-600 border-slate-200',
-    check: 'text-[#6A9BA0]',
-    divider: 'border-slate-200',
+    // Cool white — barely tinted, very close to RISE
+    bg: 'linear-gradient(160deg, #F8FAFA 0%, #EEF2F3 100%)',
+    cardBg: '#F8FAFA',
+    accent: '#527880',
+    pillBg: 'rgba(244,248,249,0.92)',
+    pillText: '#3A6068',
+    pillBorder: 'rgba(82,120,128,0.15)',
+    checkColor: '#62909A',
+    divider: 'rgba(82,120,128,0.12)',
     Icon: Moon,
+    iconColor: '#6898A2',
   },
 };
 
-// ─── Hook: scroll progress → visible item count ───────────────────────────────
+// ─── Hook: maps scroll position within element to a 0-1 progress value ────────
 function useScrollProgress(ref: React.RefObject<HTMLElement>, total: number) {
   const [visible, setVisible] = useState(0);
 
@@ -97,8 +106,9 @@ function useScrollProgress(ref: React.RefObject<HTMLElement>, total: number) {
     const update = () => {
       const rect = el.getBoundingClientRect();
       const wh = window.innerHeight;
-      // starts revealing when element top enters viewport, finishes before bottom leaves
-      const raw = (wh - rect.top) / (wh * 0.8);
+      // Begin revealing when element top enters 70% of viewport,
+      // finish only when it's well past — stretched window for slower reveal.
+      const raw = (wh * 0.7 - rect.top) / (wh * 1.1);
       const clamped = Math.max(0, Math.min(1, raw));
       setVisible(Math.ceil(clamped * total));
     };
@@ -111,16 +121,16 @@ function useScrollProgress(ref: React.RefObject<HTMLElement>, total: number) {
   return visible;
 }
 
-// ─── Single benefit row with fade-slide animation ─────────────────────────────
+// ─── Single benefit row ────────────────────────────────────────────────────────
 function BenefitRow({
   item,
   visible,
-  checkClass,
+  checkColor,
   delay,
 }: {
   item: BenefitItem;
   visible: boolean;
-  checkClass: string;
+  checkColor: string;
   delay: number;
 }) {
   return (
@@ -128,27 +138,33 @@ function BenefitRow({
       className="flex items-start gap-3"
       style={{
         opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(10px)',
-        transition: `opacity 0.45s ease ${delay}ms, transform 0.45s ease ${delay}ms`,
+        transform: visible ? 'translateY(0)' : 'translateY(22px)',
+        transition: `opacity 0.8s cubic-bezier(0.22,1,0.36,1) ${delay}ms, transform 0.8s cubic-bezier(0.22,1,0.36,1) ${delay}ms`,
+        willChange: 'opacity, transform',
       }}
     >
-      <CheckCircle2 className={`w-3.5 h-3.5 mt-0.5 shrink-0 ${checkClass}`} />
+      <CheckCircle2
+        className="w-3.5 h-3.5 mt-[3px] shrink-0"
+        style={{ color: checkColor }}
+        strokeWidth={2}
+      />
       <div>
-        <p className="text-sm font-semibold text-foreground mb-0.5">{item.name}</p>
-        <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+        <p className="text-[13px] font-semibold text-neutral-800 mb-0.5 leading-snug">{item.name}</p>
+        <p className="text-[12px] text-neutral-400 leading-relaxed">{item.desc}</p>
       </div>
     </div>
   );
 }
 
-// ─── Desktop: side-by-side with synced scroll reveal ─────────────────────────
+// ─── Desktop: side-by-side — both columns share one scroll tracker ────────────
 function DesktopColumns({ columns }: { columns: Column[] }) {
   const sectionRef = useRef<HTMLDivElement>(null!);
   const maxItems = Math.max(...columns.map((c) => c.items.length));
+  // Single shared scroll tracker — both sides progress in sync
   const visibleCount = useScrollProgress(sectionRef, maxItems);
 
   return (
-    <div ref={sectionRef} className="hidden md:grid md:grid-cols-2 gap-8 mt-16">
+    <div ref={sectionRef} className="hidden md:grid md:grid-cols-2 gap-6 lg:gap-8">
       {columns.map((col) => {
         const theme = THEMES[col.id];
         const Icon = theme.Icon;
@@ -156,22 +172,40 @@ function DesktopColumns({ columns }: { columns: Column[] }) {
         return (
           <div
             key={col.id}
-            className="rounded-3xl overflow-hidden border border-black/[0.04] shadow-xl"
-            style={{ background: theme.bg }}
+            className="rounded-2xl overflow-hidden"
+            style={{
+              background: theme.bg,
+              // Subtle layered shadow for depth — not flat
+              boxShadow:
+                '0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03)',
+            }}
           >
-            {/* Image — clean, no gradient overlays */}
-            <div className="relative h-64 lg:h-72 overflow-hidden">
+            {/* Image — clean, no overlay, no gradient */}
+            <div className="relative h-56 lg:h-64 overflow-hidden">
               <img
                 src={IMAGES[col.id]}
                 alt={col.title}
                 className="w-full h-full object-cover object-center"
+                style={{ display: 'block' }}
               />
-              <div className="absolute top-5 left-5">
+              {/* Pill badge only — no gradient overlay on image */}
+              <div className="absolute top-4 left-4">
                 <div
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full backdrop-blur-md border ${theme.pill}`}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full backdrop-blur-sm"
+                  style={{
+                    background: theme.pillBg,
+                    border: `1px solid ${theme.pillBorder}`,
+                  }}
                 >
-                  <Icon className="w-3 h-3" />
-                  <span className="text-[10px] font-medium tracking-[0.18em] uppercase">
+                  <Icon
+                    className="w-3 h-3"
+                    style={{ color: theme.iconColor }}
+                    strokeWidth={1.75}
+                  />
+                  <span
+                    className="text-[10px] font-medium tracking-[0.18em] uppercase"
+                    style={{ color: theme.pillText }}
+                  >
                     {col.subtitle}
                   </span>
                 </div>
@@ -179,27 +213,33 @@ function DesktopColumns({ columns }: { columns: Column[] }) {
             </div>
 
             {/* Content */}
-            <div className="px-8 pb-10 pt-6 lg:px-10 lg:pb-12">
-              <h3 className="font-serif text-2xl lg:text-3xl text-foreground font-normal mb-1">
+            <div className="px-7 pb-9 pt-6 lg:px-8 lg:pb-10">
+              <h3
+                className="font-serif text-2xl lg:text-[1.65rem] text-neutral-900 font-normal mb-1 tracking-tight"
+              >
                 {col.title}
               </h3>
-              <p className="text-sm font-medium mb-5" style={{ color: theme.accent }}>
+              <p
+                className="text-[13px] font-medium mb-5 leading-snug"
+                style={{ color: theme.accent }}
+              >
                 {col.tagline}
               </p>
               <p
-                className={`text-sm text-muted-foreground leading-relaxed pb-6 mb-6 border-b ${theme.divider}`}
+                className="text-[13px] text-neutral-400 leading-relaxed pb-5 mb-5"
+                style={{ borderBottom: `1px solid ${theme.divider}` }}
               >
                 {col.overline}
               </p>
 
-              {/* Synced progressive reveal — both columns share visibleCount */}
-              <div className="space-y-4">
+              {/* Synced progressive reveal */}
+              <div className="space-y-[14px]">
                 {col.items.map((item, j) => (
                   <BenefitRow
                     key={j}
                     item={item}
                     visible={visibleCount > j}
-                    checkClass={theme.check}
+                    checkColor={theme.checkColor}
                     delay={0}
                   />
                 ))}
@@ -212,56 +252,99 @@ function DesktopColumns({ columns }: { columns: Column[] }) {
   );
 }
 
-// ─── Mobile: stacked sections, individual scroll reveal ───────────────────────
+// ─── Mobile: stacked, each with its own simple scroll reveal ──────────────────
 function MobileColumn({ col }: { col: Column }) {
   const theme = THEMES[col.id];
   const Icon = theme.Icon;
-  const ref = useRef<HTMLDivElement>(null!);
-  const visible = useScrollProgress(ref, col.items.length);
+
+  // Card entrance reveal
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [cardVisible, setCardVisible] = useState(false);
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) setCardVisible(true); },
+      { threshold: 0.12 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  // Items reveal — simple scroll hook
+  const itemsRef = useRef<HTMLDivElement>(null!);
+  const visibleCount = useScrollProgress(itemsRef, col.items.length);
 
   return (
     <div
-      ref={ref}
-      className="rounded-3xl overflow-hidden border border-black/[0.04]"
-      style={{ background: theme.bg }}
+      ref={cardRef}
+      className="rounded-2xl overflow-hidden"
+      style={{
+        background: theme.bg,
+        boxShadow:
+          '0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03)',
+        opacity: cardVisible ? 1 : 0,
+        transform: cardVisible ? 'translateY(0)' : 'translateY(28px)',
+        transition: 'opacity 0.9s cubic-bezier(0.22,1,0.36,1), transform 0.9s cubic-bezier(0.22,1,0.36,1)',
+        willChange: 'opacity, transform',
+      }}
     >
-      {/* Mobile image — tall, clean crop, no overlays */}
-      <div className="relative h-60 overflow-hidden">
+      {/* Mobile image — tall enough to be clear, no gradients, no cropping issues */}
+      <div className="relative w-full overflow-hidden" style={{ height: '240px' }}>
         <img
           src={IMAGES[col.id]}
           alt={col.title}
-          className="w-full h-full object-cover object-center"
+          className="w-full h-full object-cover"
+          style={{
+            objectPosition: 'center 30%',
+            display: 'block',
+          }}
         />
+        {/* Pill badge — clean, no overlay */}
         <div className="absolute top-4 left-4">
           <div
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full backdrop-blur-md border ${theme.pill}`}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full backdrop-blur-sm"
+            style={{
+              background: theme.pillBg,
+              border: `1px solid ${theme.pillBorder}`,
+            }}
           >
-            <Icon className="w-3 h-3" />
-            <span className="text-[10px] font-medium tracking-[0.18em] uppercase">
+            <Icon className="w-3 h-3" style={{ color: theme.iconColor }} strokeWidth={1.75} />
+            <span
+              className="text-[10px] font-medium tracking-[0.18em] uppercase"
+              style={{ color: theme.pillText }}
+            >
               {col.subtitle}
             </span>
           </div>
         </div>
       </div>
 
-      <div className="px-6 pb-8 pt-6">
-        <h3 className="font-serif text-2xl text-foreground font-normal mb-1">{col.title}</h3>
-        <p className="text-sm font-medium mb-4" style={{ color: theme.accent }}>
+      {/* Content */}
+      <div className="px-6 pb-8 pt-5">
+        <h3 className="font-serif text-[1.4rem] text-neutral-900 font-normal mb-1 tracking-tight">
+          DEWN {col.title}
+        </h3>
+        <p
+          className="text-[13px] font-medium mb-4 leading-snug"
+          style={{ color: theme.accent }}
+        >
           {col.tagline}
         </p>
         <p
-          className={`text-sm text-muted-foreground leading-relaxed pb-5 mb-5 border-b ${theme.divider}`}
+          className="text-[13px] text-neutral-400 leading-relaxed pb-4 mb-4"
+          style={{ borderBottom: `1px solid ${theme.divider}` }}
         >
           {col.overline}
         </p>
-        <div className="space-y-4">
+        <div ref={itemsRef} className="space-y-[14px]">
           {col.items.map((item, j) => (
             <BenefitRow
               key={j}
               item={item}
-              visible={visible > j}
-              checkClass={theme.check}
-              delay={j * 60}
+              visible={visibleCount > j}
+              checkColor={theme.checkColor}
+              delay={j * 120}
             />
           ))}
         </div>
@@ -270,18 +353,16 @@ function MobileColumn({ col }: { col: Column }) {
   );
 }
 
-// ─── Main export ───────────────────────────────────────────────────────────────
-export default function BenefitsSection({ data = FALLBACK_DATA }: { data?: BenefitsData }) {
-  const { title, columns } = data;
-
-  const headerRef = useRef<HTMLDivElement>(null);
-  const [headerVisible, setHeaderVisible] = useState(false);
+// ─── Section header with simple entrance ─────────────────────────────────────
+function SectionHeader({ title }: { title: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const el = headerRef.current;
+    const el = ref.current;
     if (!el) return;
     const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) setHeaderVisible(true); },
+      ([e]) => { if (e.isIntersecting) setVisible(true); },
       { threshold: 0.2 }
     );
     obs.observe(el);
@@ -289,49 +370,118 @@ export default function BenefitsSection({ data = FALLBACK_DATA }: { data?: Benef
   }, []);
 
   return (
-    <section className="bg-white relative overflow-hidden pt-32 lg:pt-44 pb-32 lg:pb-44" id="benefits">
+    <div
+      ref={ref}
+      className="mb-10 lg:mb-12"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(24px)',
+        transition: 'opacity 0.9s cubic-bezier(0.22,1,0.36,1), transform 0.9s cubic-bezier(0.22,1,0.36,1)',
+        willChange: 'opacity, transform',
+      }}
+    >
+      <p className="text-[11px] tracking-[0.28em] uppercase text-neutral-400 mb-3 font-medium">
+        The System
+      </p>
+      <h2 className="font-serif text-4xl sm:text-5xl lg:text-[2.9rem] text-neutral-900 leading-[1.12] font-normal tracking-tight">
+        {title}
+      </h2>
+    </div>
+  );
+}
+
+// ─── Hero image with simple entrance ─────────────────────────────────────────
+function HeroImage() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) setVisible(true); },
+      { threshold: 0.05 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className="hidden md:block w-full mb-10"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(20px)',
+        transition: 'opacity 1s cubic-bezier(0.22,1,0.36,1), transform 1s cubic-bezier(0.22,1,0.36,1)',
+        willChange: 'opacity, transform',
+      }}
+    >
+      <img
+        src={IMAGES.hero}
+        alt="DEWN — nutrition for slowed digestion"
+        className="w-full object-cover object-center"
+        style={{ height: 'clamp(280px, 38vw, 400px)', display: 'block' }}
+      />
+    </div>
+  );
+}
+
+// ─── Main export ───────────────────────────────────────────────────────────────
+export default function BenefitsSection({ data = FALLBACK_DATA }: { data?: BenefitsData }) {
+  const { title, columns } = data;
+
+  return (
+    <section
+      id="benefits"
+      className="relative overflow-hidden pt-28 lg:pt-40 pb-28 lg:pb-40"
+      style={{
+        // Subtle background depth — not flat white
+        background: 'linear-gradient(180deg, #FEFEFE 0%, #F7F6F3 40%, #F4F3F0 100%)',
+      }}
+    >
+      <div
+  aria-hidden
+  className="pointer-events-none absolute bottom-0 left-0 right-0"
+  style={{
+    height: '18%',
+    background: 'linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%)',
+    zIndex: 10,
+  }}
+/>
+      {/* Very faint noise texture for depth */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.85\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'1\'/%3E%3C/svg%3E")',
+          backgroundRepeat: 'repeat',
+          backgroundSize: '180px 180px',
+          opacity: 0.018,
+          mixBlendMode: 'multiply',
+        }}
+      />
 
       {/* Header — constrained */}
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div
-          ref={headerRef}
-          className="mb-12 lg:mb-16 transition-all duration-700"
-          style={{
-            opacity: headerVisible ? 1 : 0,
-            transform: headerVisible ? 'translateY(0)' : 'translateY(20px)',
-          }}
-        >
-          <p className="text-xs tracking-[0.25em] uppercase text-muted-foreground/60 mb-4 font-medium">
-            The System
-          </p>
-          <h2 className="font-serif text-4xl sm:text-5xl lg:text-[3rem] text-foreground leading-[1.15] font-normal">
-            {title}
-          </h2>
-        </div>
+        <SectionHeader title={title} />
       </div>
 
-      {/* Full-width image — desktop only, breaks out of container */}
-      <div className="hidden md:block w-full mb-12">
-        <img
-          src={IMAGES.hero}
-          alt="DEWN — nutrition for slowed digestion"
-          className="w-full  lg:h-[560px] object-cover object-center"
-        />
-      </div>
+      {/* Full-width hero image — desktop only, clean, no overlays */}
+      <HeroImage />
 
-      {/* Columns + mobile — back inside container */}
+      {/* Columns — back inside container */}
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-
-        {/* Desktop: side-by-side columns */}
+        {/* Desktop: side-by-side with synced scroll reveal */}
         <DesktopColumns columns={columns} />
 
-        {/* Mobile layout */}
-        <div className="md:hidden space-y-8">
+        {/* Mobile: stacked sections */}
+        <div className="md:hidden space-y-6">
           {columns.map((col) => (
             <MobileColumn key={col.id} col={col} />
           ))}
         </div>
-
       </div>
     </section>
   );
@@ -341,8 +491,6 @@ export default function BenefitsSection({ data = FALLBACK_DATA }: { data?: Benef
 ──────────────────────────────────────────────────────────────
   SERVER COMPONENT WRAPPER (when using Sanity)
 ──────────────────────────────────────────────────────────────
-  Move the Sanity fetch here and pass data as prop:
-
   import { client } from '@/sanity/lib/client'
   import BenefitsSection from './BenefitsSection'
 

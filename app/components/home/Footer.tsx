@@ -35,7 +35,6 @@ export default async function Footer() {
             {links.map((l: any, i: number) => (
               <Link key={i} href={l.url} className="hover:text-foreground transition-colors">{l.title}</Link>
             ))}
-            <a href="mailto:hello@dewn.co" className="hover:text-foreground transition-colors">Contact</a>
           </div>
         </div>
 

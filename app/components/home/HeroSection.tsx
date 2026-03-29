@@ -52,7 +52,7 @@ export default async function HeroSection() {
             <ScrollReveal delay={0.2} direction="right">
               <div className="relative">
 
-                <div className="md:aspect-[3/4] max-h-[37vh] md:max-h-[70vh] rounded-2xl overflow-hidden bg-muted">
+                <div className="md:aspect-[3/4] shadow-[0px_10px_15px_-3px_rgba(0,_0,_0,_0.1)] max-h-[37vh] md:max-h-[70vh] rounded-2xl overflow-hidden bg-muted">
                   <img
                     src={imageUrl}
                     alt="Person holding a crystal-clear glass in morning light"

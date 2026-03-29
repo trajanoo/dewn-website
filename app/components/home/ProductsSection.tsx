@@ -47,7 +47,7 @@ export default async function ProductsSection() {
               <div className={`grid lg:grid-cols-2 gap-12 lg:gap-16 items-center ${i === 1 ? 'lg:flex-row-reverse' : ''}`}>
 
                 <div className={`relative ${i === 1 ? 'lg:order-2' : ''}`}>
-                  <div className={`aspect-[4/3] rounded-3xl overflow-hidden bg-gradient-to-br ${product.gradient ?? 'from-amber-50/80 via-orange-50/60 to-yellow-50/40'}`}>
+                  <div className={`aspect-[4/3] rounded-3xl  overflow-hidden bg-gradient-to-br ${product.gradient ?? 'from-amber-50/80 via-orange-50/60 to-yellow-50/40'}`}>
                     {product.image && (
                       <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                     )}
@@ -56,12 +56,12 @@ export default async function ProductsSection() {
 
                 <div className={i === 1 ? 'lg:order-1' : ''}>
                   <div className="mb-3">
-                    <span className="text-xs tracking-[0.2em] uppercase text-muted-foreground/70">
+                    <span className="text-xs tracking-[0.2em] uppercase text-foreground/80">
                       {product.tagline}
                     </span>
                   </div>
 
-                  <div className="mb-8 w-36">
+                  <div className="mb-8 w-30">
                     {product.name?.toLowerCase() === 'rise' ? (
                       <img
                         src="/assets/Copy of Rise Text.svg"
@@ -85,7 +85,7 @@ export default async function ProductsSection() {
 
                     {product.whatItIs && (
                       <div>
-                        <p className="text-xs font-medium uppercase tracking-wider text-foreground/60 mb-3">
+                        <p className="text-xs font-medium uppercase tracking-wider text-foreground/80 mb-3">
                           What it is
                         </p>
                         <p className="text-base text-foreground/70 leading-relaxed font-light">
@@ -96,10 +96,10 @@ export default async function ProductsSection() {
 
                     {product.whyItWorks && (
                       <div>
-                        <p className="text-xs font-medium uppercase tracking-wider text-foreground/60 mb-3">
+                        <p className="text-xs font-medium uppercase tracking-wider text-foreground/80 mb-3">
                           Why it works
                         </p>
-                        <p className="text-base text-foreground/70 leading-relaxed font-light">
+                        <p className="text-base text-foreground/80 leading-relaxed font-light">
                           {product.whyItWorks}
                         </p>
                       </div>
@@ -107,7 +107,7 @@ export default async function ProductsSection() {
 
                     {product.experience?.length > 0 && (
                       <div>
-                        <p className="text-xs font-medium uppercase tracking-wider text-foreground/60 mb-4">
+                        <p className="text-xs font-medium uppercase tracking-wider text-foreground/80 mb-4">
                           Experience
                         </p>
                         <ul className="space-y-3">

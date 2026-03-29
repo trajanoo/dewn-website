@@ -13,7 +13,8 @@ export default async function ProblemSection() {
   const statValue = data?.statValue
 
   const edge = 'clamp(120px, 32vh, 420px)'
-  const sectionBg = `linear-gradient(180deg, #F7F6F4 0px, #e2e2e2 ${edge}, #e2e2e2 calc(100% - ${edge}), #f0ede8 100%)`
+  const sectionBg = `linear-gradient(180deg, #F7F6F4 0px, #e2e2e2 ${edge}, #dbdbdb
+ calc(100% - ${edge}), #f0ede8 100%)`
 
   return (
     <section

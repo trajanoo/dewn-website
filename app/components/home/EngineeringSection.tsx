@@ -8,7 +8,6 @@ export default async function EngineeringSection() {
   const title = data?.title ?? 'Precision is not a goal.\nIt is a constraint.'
   const metrics = data?.metrics
 
-  // Topo = #ede9e2 contínuo com o fim de Products; só o rodapé mistura até Ingredients
   const edge = 'clamp(120px, 32vh, 420px)'
   const sectionBg = `linear-gradient(180deg, #ede9e2 0px, #ede9e2 calc(100% - ${edge}), #FAFAFA 100%)`
 
@@ -18,13 +17,11 @@ export default async function EngineeringSection() {
       id="science"
       style={{ background: sectionBg }}
     >
-      {/* Ruído sutil para profundidade orgânica */}
       <div
         className="absolute inset-0 pointer-events-none z-10 opacity-[0.04]"
         style={{ backgroundImage: 'url("https://www.transparenttextures.com/patterns/noise.png")' }}
       />
 
-      {/* Textura existente */}
       <div className="absolute inset-0 opacity-[0.025]">
         <img
           src="https://media.base44.com/images/public/69bb2e760f85bc431ed88f86/a28434f62_generated_image.png"
@@ -45,10 +42,10 @@ export default async function EngineeringSection() {
           </div>
         </ScrollReveal>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-px bg-foreground/8">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 divide-x divide-y divide-foreground/[0.08]">
           {metrics.map((metric: any, i: number) => (
             <ScrollReveal key={metric.title ?? i} delay={i * 0.08}>
-              <div className="bg-[#ede9e2] p-8 lg:p-10 h-full flex flex-col gap-5 group hover:bg-[#e8e4dc]/60 transition-colors duration-300">
+              <div className="p-8 lg:p-10 h-full flex flex-col gap-5 group hover:bg-black/[0.025] transition-colors duration-300">
 
                 <div className="font-sans text-[#5a8a90] text-3xl lg:text-4xl font-bold tabular-nums">
                   {metric.stat}
@@ -64,7 +61,6 @@ export default async function EngineeringSection() {
                 </div>
 
                 <div className="w-6 h-px bg-[#5a8a90]/30 group-hover:w-10 transition-all duration-500" />
-
               </div>
             </ScrollReveal>
           ))}
