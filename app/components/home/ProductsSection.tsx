@@ -20,9 +20,17 @@ export default async function ProductsSection() {
     return (indexA === -1 ? 99 : indexA) - (indexB === -1 ? 99 : indexB);
   });
 
+  // Topo = #f0ede8 contínuo com o fim de Problem; só o rodapé mistura até Engineering
+  const edge = 'clamp(120px, 32vh, 420px)'
+  const sectionBg = `linear-gradient(180deg, #f0ede8 0px, #f0ede8 calc(100% - ${edge}), #ede9e2 100%)`
+
   return (
-    <section className="relative py-32 lg:py-44 bg-[#f0ede8] from-background to-[hsl(var(--surface-1))]">
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
+    <section
+      className="relative overflow-hidden py-32 lg:py-44"
+      style={{ background: sectionBg }}
+    >
+
+      <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-20">
 
         <ScrollReveal>
           <div className="max-w-3xl mb-20">

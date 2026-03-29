@@ -8,12 +8,16 @@ export default async function EngineeringSection() {
   const title = data?.title ?? 'Precision is not a goal.\nIt is a constraint.'
   const metrics = data?.metrics
 
+  // Topo = #ede9e2 contínuo com o fim de Products; só o rodapé mistura até Ingredients
+  const edge = 'clamp(120px, 32vh, 420px)'
+  const sectionBg = `linear-gradient(180deg, #ede9e2 0px, #ede9e2 calc(100% - ${edge}), #FAFAFA 100%)`
+
   return (
     <section
-      className="py-32 lg:py-44 bg-[#ede9e2] relative overflow-hidden"
+      className="py-32 lg:py-44 relative overflow-hidden"
       id="science"
+      style={{ background: sectionBg }}
     >
-      {/* Entrada suave vindo do branco da seção anterior */}
       {/* Ruído sutil para profundidade orgânica */}
       <div
         className="absolute inset-0 pointer-events-none z-10 opacity-[0.04]"
@@ -28,12 +32,6 @@ export default async function EngineeringSection() {
           className="w-full h-full object-cover"
         />
       </div>
-
-      {/* Saída suave para a próxima seção */}
-      <div
-        className="absolute bottom-0 left-0 right-0 h-40 pointer-events-none z-10"
-        style={{ background: 'linear-gradient(to top, #FAFAFA, transparent)' }}
-      />
 
       <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-20">
         <ScrollReveal>

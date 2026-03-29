@@ -12,15 +12,14 @@ export default async function ProblemSection() {
   const statTitle = data?.statTitle
   const statValue = data?.statValue
 
-  return (
-    <section className="py-24 lg:py-36 bg-[#e2e2e2] text-foreground relative overflow-hidden">
+  const edge = 'clamp(120px, 32vh, 420px)'
+  const sectionBg = `linear-gradient(180deg, #F7F6F4 0px, #e2e2e2 ${edge}, #e2e2e2 calc(100% - ${edge}), #f0ede8 100%)`
 
-      <div className="absolute top-0 left-0 right-0 h-[35%] pointer-events-none z-10"
-        style={{ background: 'linear-gradient(to bottom, #F7F6F4, transparent)' }}
-      />
-      <div className="absolute bottom-0 left-0 right-0 h-[35%] pointer-events-none z-10"
-        style={{ background: 'linear-gradient(to top, #ede9e2, transparent)' }}
-      />
+  return (
+    <section
+      className="py-24 lg:py-36 text-foreground relative overflow-hidden"
+      style={{ background: sectionBg }}
+    >
 
       <div className="absolute inset-0 opacity-5">
         <div className="absolute inset-0" style={{
