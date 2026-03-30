@@ -4,6 +4,24 @@ import { useState, useRef, useEffect } from 'react'
 import { toast } from 'sonner'
 
 const ZOHO_FORM_ID = '3z74e84c8d5aaea1b92535bb9ec5fb386b8afeca7e0c821a192226c91f7d5682fd'
+const SUBMITTED_EMAILS_KEY = 'dewn_waitlist_emails'
+
+function getSubmittedEmails(): Set<string> {
+  try {
+    const raw = localStorage.getItem(SUBMITTED_EMAILS_KEY)
+    return new Set(raw ? JSON.parse(raw) : [])
+  } catch {
+    return new Set()
+  }
+}
+
+function saveSubmittedEmail(email: string) {
+  try {
+    const emails = getSubmittedEmails()
+    emails.add(email.toLowerCase().trim())
+    localStorage.setItem(SUBMITTED_EMAILS_KEY, JSON.stringify([...emails]))
+  } catch {}
+}
 
 interface WaitlistFormProps {
   dark?: boolean
@@ -17,21 +35,19 @@ export default function WaitlistForm({ dark = false, instanceId = 'default' }: W
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const iframeRef = useRef<HTMLIFrameElement>(null)
+  const loadingRef = useRef(false)
 
   useEffect(() => {
     const iframe = iframeRef.current
-    if (!iframe) return
-
     const handleLoad = () => {
-      if (loading) {
-        setSubmitted(true)
-        setLoading(false)
-      }
+      if (!loadingRef.current) return
+      loadingRef.current = false
+      setLoading(false)
+      setSubmitted(true)
     }
-
-    iframe.addEventListener('load', handleLoad)
-    return () => iframe.removeEventListener('load', handleLoad)
-  }, [loading])
+    iframe?.addEventListener('load', handleLoad)
+    return () => iframe?.removeEventListener('load', handleLoad)
+  }, [])
 
   useEffect(() => {
     if (submitted) {
@@ -43,10 +59,25 @@ export default function WaitlistForm({ dark = false, instanceId = 'default' }: W
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     if (!email) return
+
+    const normalizedEmail = email.toLowerCase().trim()
+
+    // Check locally if this email was already submitted on this device
+    if (getSubmittedEmails().has(normalizedEmail)) {
+      e.preventDefault()
+      toast.info("You're already on the list. We'll be in touch at launch.", {
+        position: 'top-center',
+      })
+      return
+    }
+
+    // Save immediately so re-submits are caught
+    saveSubmittedEmail(normalizedEmail)
+    loadingRef.current = true
     setLoading(true)
 
     if (typeof (window as any).gtag === 'function') {
-      ; (window as any).gtag('event', 'waitlist_submit', {
+      ;(window as any).gtag('event', 'waitlist_submit', {
         event_category: 'engagement',
         event_label: 'Zoho Waitlist Form',
       })
@@ -65,14 +96,12 @@ export default function WaitlistForm({ dark = false, instanceId = 'default' }: W
       />
 
       <form
-        id="zcampaignOptinForm"
         action="https://zgp4-zgp4.maillist-manage.in/weboptin.zc"
         method="POST"
         target={iFrameName}
         onSubmit={handleSubmit}
         className="flex flex-col sm:flex-row gap-3 w-full max-w-md"
       >
-
         <input type="hidden" name="submitType" value="optinCustomView" />
         <input type="hidden" name="emailReportId" value="" />
         <input type="hidden" name="formType" value="QuickForm" />
@@ -94,10 +123,11 @@ export default function WaitlistForm({ dark = false, instanceId = 'default' }: W
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Your email"
           required
-          className={`flex-1 px-5 py-3 rounded-full text-sm outline-none transition-all duration-200 ${dark
+          className={`flex-1 px-5 py-3 rounded-full text-sm outline-none transition-all duration-200 ${
+            dark
               ? 'bg-white/10 border border-white/20 text-white placeholder:text-white/40 focus:border-white/40'
               : 'bg-white border border-border text-foreground placeholder:text-muted-foreground focus:border-foreground/30'
-            }`}
+          }`}
         />
 
         <button
@@ -107,24 +137,20 @@ export default function WaitlistForm({ dark = false, instanceId = 'default' }: W
   text-sm font-medium whitespace-nowrap
   transform transition-all duration-500
   hover:scale-105
-
-  ${dark
-              ? 'bg-white text-foreground hover:bg-white/90 shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_30px_rgba(255,255,255,0.25)]'
-              : 'bg-[#1E2429] text-primary-foreground shadow-[0_0_20px_rgba(0,0,0,0.25)] hover:shadow-[0_0_35px_rgba(0,0,0,0.4)]'
-            }
-
+  ${
+    dark
+      ? 'bg-white text-foreground hover:bg-white/90 shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:shadow-[0_0_30px_rgba(255,255,255,0.25)]'
+      : 'bg-[#1E2429] text-primary-foreground shadow-[0_0_20px_rgba(0,0,0,0.25)] hover:shadow-[0_0_35px_rgba(0,0,0,0.4)]'
+  }
   ${loading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}
-
   before:absolute before:top-0 before:left-[-75%] before:w-[50%] before:h-full
   before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent
   before:skew-x-[-25deg]
   before:transition-all before:duration-700
-  hover:before:left-[125%]
-`}
+  hover:before:left-[125%]`}
         >
           {loading ? 'Joining...' : 'Join the Waitlist'}
         </button>
-
       </form>
     </>
   )
