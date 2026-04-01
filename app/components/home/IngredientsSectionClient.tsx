@@ -6,7 +6,7 @@ import IngredientsMobile from './IngredientsMobile';
 
 const TOTAL_FRAMES = 192;
 const SCROLL_HEIGHT = 680;
-const FRAME_BASE_PATH = '/dewn-3d/';
+const FRAME_BASE_PATH = '/dewn-3d/ezgif-frame-';
 const FRAME_EXTENSION = '.png';
 const SECTION_BG = '#FAFAFA';
 
