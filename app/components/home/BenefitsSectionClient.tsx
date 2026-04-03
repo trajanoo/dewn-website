@@ -101,7 +101,12 @@ const THEMES = {
 };
 
 // ─── Hook: maps scroll position within element to a 0-1 progress value ────────
-function useScrollProgress(ref: React.RefObject<HTMLElement>, total: number) {
+function useScrollProgress(
+  ref: React.RefObject<HTMLElement>,
+  total: number,
+  startFactor = 0.95,
+  rangeFactor = 0.5
+) {
   const [visible, setVisible] = useState(0);
 
   useEffect(() => {
@@ -111,9 +116,7 @@ function useScrollProgress(ref: React.RefObject<HTMLElement>, total: number) {
     const update = () => {
       const rect = el.getBoundingClientRect();
       const wh = window.innerHeight;
-      // Begin revealing when element top enters 70% of viewport,
-      // finish only when it's well past — stretched window for slower reveal.
-      const raw = (wh * 0.7 - rect.top) / (wh * 1.1);
+      const raw = (wh * startFactor - rect.top) / (wh * rangeFactor);
       const clamped = Math.max(0, Math.min(1, raw));
       setVisible(Math.ceil(clamped * total));
     };
@@ -121,7 +124,7 @@ function useScrollProgress(ref: React.RefObject<HTMLElement>, total: number) {
     window.addEventListener('scroll', update, { passive: true });
     update();
     return () => window.removeEventListener('scroll', update);
-  }, [ref, total]);
+  }, [ref, total, startFactor, rangeFactor]);
 
   return visible;
 }
@@ -166,7 +169,7 @@ function DesktopColumns({ columns }: { columns: Column[] }) {
   const sectionRef = useRef<HTMLDivElement>(null!);
   const maxItems = Math.max(...columns.map((c) => c.items.length));
   // Single shared scroll tracker — both sides progress in sync
-  const visibleCount = useScrollProgress(sectionRef, maxItems);
+  const visibleCount = useScrollProgress(sectionRef, maxItems, 1.3, 1.5);
 
   return (
     <div ref={sectionRef} className="hidden md:grid md:grid-cols-2 gap-6 lg:gap-8">
@@ -278,7 +281,7 @@ function MobileColumn({ col }: { col: Column }) {
 
   // Items reveal — simple scroll hook
   const itemsRef = useRef<HTMLDivElement>(null!);
-  const visibleCount = useScrollProgress(itemsRef, col.items.length);
+  const visibleCount = useScrollProgress(itemsRef, col.items.length, 0.95, 0.5);
 
   return (
     <div
